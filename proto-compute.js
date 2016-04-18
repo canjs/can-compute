@@ -391,6 +391,8 @@ assign(Compute.prototype, {
 	}
 });
 
+Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
+Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
 // ## Helpers
 
 // ## updateOnChange

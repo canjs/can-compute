@@ -1,5 +1,8 @@
 var compute = require('can-compute');
+var Compute = require('can-compute/proto-compute');
 var QUnit = require('steal-qunit');
+var canBatch = require('can-event/batch/');
+var ObserveInfo = require('can-observe-info');
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -171,10 +174,10 @@ test("a compute updated by source changes within a batch is part of that batch",
 		callbacks++;
 	});
 
-	can.batch.start();
+	canBatch.start();
 	computeA("A");
 	computeB("B");
-	can.batch.stop();
+	canBatch.stop();
 });
 
 test("compute.async can be like a normal getter", function(){
@@ -284,7 +287,7 @@ QUnit.module('can/Compute');
 
 test('single value compute', function () {
 	expect(2);
-	var num = new compute(1);
+	var num = new Compute(1);
 	num.bind('change', function (ev, newVal, oldVal) {
 		equal(newVal, 2, 'newVal');
 		equal(oldVal, 1, 'oldVal');
@@ -293,20 +296,20 @@ test('single value compute', function () {
 });
 
 test('inner computes values are not bound to', function () {
-	var num = new compute(1),
-		numBind = num.bind,
-		numUnbind = num.unbind;
+	var num = new Compute(1),
+		numBind = num.addEventListener,
+		numUnbind = num.removeEventListener;
 	var bindCount = 0;
-	num.bind = function() {
+	num.addEventListener = function() {
 		bindCount++;
 		return numBind.apply(this, arguments);
 	};
-	num.unbind = function() {
+	num.removeEventListener = function() {
 		bindCount--;
 		return numUnbind.apply(this, arguments);
 	};
-	var outer = new compute(function() {
-		var inner = new compute(function() {
+	var outer = new Compute(function() {
+		var inner = new Compute(function() {
 			return num.get() + 1;
 		});
 		return 2 * inner.get();
@@ -323,9 +326,9 @@ test('inner computes values are not bound to', function () {
 
 test('compute.truthy', function() {
 	var result = 0;
-	var num = new compute(3);
-	var truthy = compute.truthy(num);
-	var tester = new compute(function() {
+	var num = new Compute(3);
+	var truthy = Compute.truthy(num);
+	var tester = new Compute(function() {
 		if(truthy.get()) {
 			return ++result;
 		} else {
@@ -352,7 +355,7 @@ test('compute.truthy', function() {
 test('a binding compute does not double read', function () {
 	var sourceAge = 30,
 		timesComputeIsCalled = 0;
-	var age = new compute(function (newVal) {
+	var age = new Compute(function (newVal) {
 		timesComputeIsCalled++;
 		if (timesComputeIsCalled === 1) {
 			ok(true, 'reading age to get value');
@@ -370,7 +373,7 @@ test('a binding compute does not double read', function () {
 		}
 	});
 
-	var info = new compute(function () {
+	var info = new Compute(function () {
 		return 'I am ' + age.get();
 	});
 
@@ -382,7 +385,7 @@ test('a binding compute does not double read', function () {
 });
 
 test('cloning a setter compute (#547)', function () {
-	var name = new compute('', function(newVal) {
+	var name = new Compute('', function(newVal) {
 		return this.txt + newVal;
 	});
 
@@ -401,7 +404,7 @@ test('compute updated method uses get and old value (#732)', function () {
 		value: 1
 	};
 
-	var value = new compute('', {
+	var value = new Compute('', {
 		get: function () {
 			return input.value;
 		},
@@ -438,18 +441,18 @@ test('compute updated method uses get and old value (#732)', function () {
 });
 
 test('a compute updated by source changes within a batch is part of that batch', function () {
-	var computeA = new compute('a');
-	var computeB = new compute('b');
+	var computeA = new Compute('a');
+	var computeB = new Compute('b');
 
-	var combined1 = new compute(function() {
+	var combined1 = new Compute(function() {
 		return computeA.get() + ' ' + computeB.get();
 	});
 
-	var combined2 = new compute(function() {
+	var combined2 = new Compute(function() {
 		return computeA.get() + ' ' + computeB.get();
 	});
 
-	var combo = new compute(function() {
+	var combo = new Compute(function() {
 		return combined1.get() + ' ' + combined2.get();
 	});
 
@@ -464,27 +467,27 @@ test('a compute updated by source changes within a batch is part of that batch',
 		callbacks++;
 	});
 
-	can.batch.start();
+	canBatch.start();
 	computeA.set('A');
 	computeB.set('B');
-	can.batch.stop();
+	canBatch.stop();
 });
 
-test('compute.async can be like a normal getter', function() {
-	var first = new compute('Justin'),
-		last = new compute('Meyer'),
-		fullName = compute.async('', function(){
+test('Compute.async can be like a normal getter', function() {
+	var first = new Compute('Justin'),
+		last = new Compute('Meyer'),
+		fullName = Compute.async('', function(){
 			return first.get() + ' ' + last.get();
 		});
 
 	equal(fullName.get(), 'Justin Meyer');
 });
 
-test('compute.async operate on single value', function() {
-	var a = new compute(1);
-	var b = new compute(2);
+test('Compute.async operate on single value', function() {
+	var a = new Compute(1);
+	var b = new Compute(2);
 
-	var obj = compute.async({}, function(curVal) {
+	var obj = Compute.async({}, function(curVal) {
 		if(a.get()) {
 			curVal.a = a.get();
 		} else {
@@ -510,11 +513,11 @@ test('compute.async operate on single value', function() {
 	deepEqual(obj.get(), {}, 'removed b');
 });
 
-test('compute.async async changing value', function() {
-	var a = new compute(1);
-	var b = new compute(2);
+test('Compute.async async changing value', function() {
+	var a = new Compute(1);
+	var b = new Compute(2);
 
-	var async = compute.async(undefined, function(curVal, setVal) {
+	var async = Compute.async(undefined, function(curVal, setVal) {
 		if(a.get()) {
 			setTimeout(function() {
 				setVal('a');
@@ -546,10 +549,10 @@ test('compute.async async changing value', function() {
 	});
 });
 
-test('compute.async read without binding', function() {
-	var source = new compute(1);
+test('Compute.async read without binding', function() {
+	var source = new Compute(1);
 
-	var async = compute.async([],function( curVal, setVal ) {
+	var async = Compute.async([],function( curVal, setVal ) {
 		curVal.push(source.get());
 		return curVal;
 	});
@@ -559,11 +562,11 @@ test('compute.async read without binding', function() {
 
 test('Compute.async set uses last set or initial value', function() {
 
-	var add = new compute(1);
+	var add = new Compute(1);
 
 	var fnCount = 0;
 
-	var async = compute.async(10,function( curVal ) {
+	var async = Compute.async(10,function( curVal ) {
 		switch(fnCount++) {
 			case 0:
 				equal(curVal, 10);
@@ -619,13 +622,13 @@ test("setting compute.async with a observable dependency gets a new value and ca
 });
 
 test('compute.async getter has correct when length === 1', function(){
-	var m = new can.Map();
+	var m = {};
 
 	var getterCompute = compute.async(false, function (singleArg) {
 		equal(this, m, 'getter has the right context');
 	}, m);
 
-	getterCompute.bind('change', can.noop);
+	getterCompute.bind('change', function(){});
 });
 
 test("bug with nested computes and batch ordering (#1519)", function(){
@@ -653,9 +656,9 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 
 
 
-	can.batch.start();
+	canBatch.start();
 	root('b');
-	can.batch.stop();
+	canBatch.stop();
 
 	equal(combined(), true);
 	//equal(other(), 2);
@@ -735,9 +738,9 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 		console.log("grandChild change", ev.batchNum)
 	});*/
 
-	can.batch.start();
+	canBatch.start();
 	root('b');
-	can.batch.stop();
+	canBatch.stop();
 });
 
 test("bug with nested computes and batch ordering (#1519)", function(){
@@ -765,9 +768,9 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 
 
 
-	can.batch.start();
+	canBatch.start();
 	root('b');
-	can.batch.stop();
+	canBatch.stop();
 
 	equal(combined(), true);
 	//equal(other(), 2);
@@ -794,7 +797,7 @@ test("binding, unbinding, and rebinding works after a timeout (#2095)", function
 
 });
 
-test("can.__isRecording observes doesn't understand can.__notObserve (#2099)", function(){
+test("ObserveInfo.isRecording observes doesn't understand ObserveInfo.notObserve (#2099)", function(){
 	expect(0);
 	var c = compute(1);
 	c.computeInstance.bind = function() {
@@ -802,7 +805,7 @@ test("can.__isRecording observes doesn't understand can.__notObserve (#2099)", f
 	};
 
 	var outer = compute(function(){
-		can.__notObserve(function(){
+		ObserveInfo.notObserve(function(){
 			c();
 		})();
 	});
@@ -830,9 +833,9 @@ test("handles missing update order items (#2121)",function(){
 		equal(newVal, "ROOT1root2");
 	});
 
-	can.batch.start();
+	canBatch.start();
 	root1("ROOT1");
-	can.batch.stop();
+	canBatch.stop();
 
 });
 
@@ -847,7 +850,7 @@ test("compute should not fire event when NaN is set multiple times #2128", funct
 	c(NaN);
 });
 
-test("can.batch.afterPreviousEvents firing too late (#2198)", function(){
+test("canBatch.afterPreviousEvents firing too late (#2198)", function(){
 
 
 	var compute1 = compute("a"),
@@ -864,18 +867,18 @@ test("can.batch.afterPreviousEvents firing too late (#2198)", function(){
 			ok(afterPrevious, "after previous should have fired so we would respond to this event");
 		});
 
-		can.batch.start();
-		can.batch.stop();
+		canBatch.start();
+		canBatch.stop();
 
 		// we should get this callback before we are notified of the change
-		can.batch.afterPreviousEvents(function() {
+		canBatch.afterPreviousEvents(function() {
 			afterPrevious = true;
 		});
 
 		compute2("c");
 	});
 
-	can.batch.start();
+	canBatch.start();
 	compute1("x");
-	can.batch.stop();
+	canBatch.stop();
 });
