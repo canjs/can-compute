@@ -12,10 +12,10 @@
 // - [read.js](read.html) provides a helper that read properties and values in an observable way.
 
 
-var canEvent = require('can-event');
-var canBatch = require('can-event/batch/');
-var Compute = require('./proto-compute');
+require('can-event');
+require('can-event/batch/');
 
+var Compute = require('./proto-compute');
 var CID = require('can-util/js/cid/');
 
 // The `can.compute` generator function.

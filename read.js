@@ -1,4 +1,5 @@
 var types = require('can-util/js/types/');
+var readValue;
 // there are things that you need to evaluate when you get them back as a property read
 // for example a compute or a function you might need to call to get the next value to
 // actually check
@@ -76,7 +77,7 @@ var isAt = function(index, reads) {
 	return prevRead && prevRead.at;
 };
 
-var readValue = function(value, index, reads, options, state, prev){
+readValue = function(value, index, reads, options, state, prev){
 	// if the previous read is AT false ... we shouldn't be doing this;
 	var usedValueReader;
 	do {
@@ -138,6 +139,8 @@ read.valueReaders = [{
 		return value.apply(prev, options.args || []);
 	}
 }];
+
+var specialRead = {index: true, key: true, event: true, element: true, viewModel: true};
 
 // propertyReaders actually read a property value
 read.propertyReaders = [
@@ -230,8 +233,6 @@ read.propertyReaders = [
 		}
 	}
 ];
-
-var specialRead = {index: true, key: true, event: true, element: true, viewModel: true};
 
 // This should be able to set a property similar to how read works.
 read.write = function(parent, key, value, options) {

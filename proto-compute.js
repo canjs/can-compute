@@ -97,6 +97,47 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 
 };
 
+// ## Helpers
+
+// ## updateOnChange
+// A helper to trigger an event when a value changes
+var updateOnChange = function(compute, newValue, oldValue, batchNum){
+
+	var valueChanged = newValue !== oldValue && !(newValue !== newValue && oldValue !== oldValue);
+
+	// Only trigger event when value has changed
+	if (valueChanged) {
+		canBatch.trigger.call(compute, {type: "change", batchNum: batchNum}, [
+			newValue,
+			oldValue
+		]);
+	}
+};
+
+// ### setupComputeHandlers
+// A helper that creates an `_on` and `_off` function that
+// will bind on source observables and update the value of the compute.
+var setupComputeHandlers = function(compute, func, context) {
+	// The last observeInfo object returned by getValueAndBind.
+	var readInfo = new ObserveInfo(func, context, compute);
+
+	return {
+		// Call `onchanged` when any source observables change.
+		_on: function() {
+			readInfo.getValueAndBind();
+			compute.value = readInfo.value;
+			compute.hasDependencies = !isEmptyObject(readInfo.newObserved);
+		},
+		// Unbind `onchanged` from all source observables.
+		_off: function() {
+			readInfo.teardown();
+		},
+		getDepth: function() {
+			return readInfo.getDepth();
+		}
+	};
+};
+
 assign(Compute.prototype, {
 	setPrimaryDepth: function(depth) {
 		this._primaryDepth = depth;
@@ -194,6 +235,11 @@ assign(Compute.prototype, {
 	// rhat can asynchronously update its value.
 	_setupAsyncCompute: function(initialValue, settings){
 		var self = this;
+		// This is the async getter function.  Depending on how many arguments the function takes,
+		// we setup bindings differently.
+		var getter = settings.fn;
+		var bindings;
+
 		this.value = initialValue;
 
 		// This compute will call update with the new value itself.
@@ -220,13 +266,6 @@ assign(Compute.prototype, {
 		this._get = function() {
 			return getter.call(settings.context, self.lastSetValue.get() );
 		};
-
-		// This is the async getter function.  Depending on how many arguments the function takes,
-		// we setup bindings differently.
-		var getter = settings.fn,
-			bindings;
-
-
 
 		if(getter.length === 0) {
 			// If it takes no arguments, it should behave just like a Getter compute.
@@ -393,49 +432,18 @@ assign(Compute.prototype, {
 
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
 Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
-// ## Helpers
-
-// ## updateOnChange
-// A helper to trigger an event when a value changes
-var updateOnChange = function(compute, newValue, oldValue, batchNum){
-
-	var valueChanged = newValue !== oldValue && !(newValue !== newValue && oldValue !== oldValue);
-
-	// Only trigger event when value has changed
-	if (valueChanged) {
-		canBatch.trigger.call(compute, {type: "change", batchNum: batchNum}, [
-			newValue,
-			oldValue
-		]);
-	}
-};
-
-// ### setupComputeHandlers
-// A helper that creates an `_on` and `_off` function that
-// will bind on source observables and update the value of the compute.
-var setupComputeHandlers = function(compute, func, context) {
-
-	// The last observeInfo object returned by getValueAndBind.
-	var readInfo = new ObserveInfo(func, context, compute);
-
-	return {
-		// Call `onchanged` when any source observables change.
-		_on: function() {
-			readInfo.getValueAndBind();
-			compute.value = readInfo.value;
-			compute.hasDependencies = !isEmptyObject(readInfo.newObserved);
-		},
-		// Unbind `onchanged` from all source observables.
-		_off: function() {
-			readInfo.teardown();
-		},
-		getDepth: function() {
-			return readInfo.getDepth();
-		}
-	};
-};
 
 var k = function(){};
+// A list of temporarily bound computes
+var computes;
+// Unbinds all temporarily bound computes.
+var unbindComputes = function () {
+	for (var i = 0, len = computes.length; i < len; i++) {
+		computes[i].removeEventListener('change', k);
+	}
+	computes = null;
+};
+
 // ### temporarilyBind
 // Binds computes for a moment to cache their value and prevent re-calculating it.
 Compute.temporarilyBind = function (compute) {
@@ -447,16 +455,6 @@ Compute.temporarilyBind = function (compute) {
 	}
 	computes.push(computeInstance);
 };
-
-// A list of temporarily bound computes
-var computes,
-	// Unbinds all temporarily bound computes.
-	unbindComputes = function () {
-		for (var i = 0, len = computes.length; i < len; i++) {
-			computes[i].removeEventListener('change', k);
-		}
-		computes = null;
-	};
 
 // ### async
 // A simple helper that makes an async compute a bit easier.
