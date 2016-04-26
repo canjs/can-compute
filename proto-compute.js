@@ -32,7 +32,6 @@
 // - `_setUpdates` - if calling `_set` will have updated the cached value itself so `_get` does not need to be called.
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
-var read = require('./read');
 var ObserveInfo = require('can-observe-info');
 var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/');
@@ -478,10 +477,5 @@ Compute.truthy = function(compute) {
 		return !!res;
 	});
 };
-
-// ### compatability
-// Setting methods that should not be around in 3.0.
-Compute.read = read;
-Compute.set = read.write;
 
 module.exports = exports = Compute;

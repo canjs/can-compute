@@ -93,8 +93,6 @@ COMPUTE.async = function(initialValue, asyncComputer, context){
 
 // ### compatability
 // Setting methods that should not be around in 3.0.
-COMPUTE.read = Compute.read;
-COMPUTE.set = Compute.set;
 COMPUTE.temporarilyBind = Compute.temporarilyBind;
 
 module.exports = exports = COMPUTE;
