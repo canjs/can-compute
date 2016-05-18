@@ -17,6 +17,7 @@ require('can-event/batch/');
 
 var Compute = require('./proto-compute');
 var CID = require('can-util/js/cid/');
+var ns = require('can-util/namespace');
 
 // The `can.compute` generator function.
 
@@ -95,4 +96,4 @@ COMPUTE.async = function(initialValue, asyncComputer, context){
 // Setting methods that should not be around in 3.0.
 COMPUTE.temporarilyBind = Compute.temporarilyBind;
 
-module.exports = exports = COMPUTE;
+module.exports = ns.compute = COMPUTE;

@@ -15,15 +15,15 @@
     "testee": "testee test.html --browsers firefox",
     "test": "npm run jshint && npm run testee",
     "jshint": "jshint *.js --config",
-    "release:prerelease": "npm version prerelease && npm publish",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "build": "node build.js",
     "document": "documentjs",
-    "develop": "done-serve --static --develop --port 8080"
+    "develop": "done-serve --static --develop --port 8080",
+    "release:pre": "npm version prerelease && npm publish"
   },
-  "main": "dist/cjs/can-compute",
+  "main": "can-compute",
   "browser": {
     "transform": [
       "cssify"
@@ -35,29 +35,20 @@
     ]
   },
   "keywords": [
-    "Can",
-    "JS",
-    "Done",
-    "JS"
+    "canjs",
+    "canjs-plugin",
+    "donejs"
   ],
   "system": {
-    "main": "can-compute",
     "configDependencies": [
       "live-reload"
-    ],
-    "npmIgnore": [
-      "documentjs",
-      "testee",
-      "generator-donejs",
-      "donejs-cli",
-      "steal-tools"
     ],
     "npmAlgorithm": "flat"
   },
   "dependencies": {
     "can-event": "^3.0.0-pre.1",
     "can-observe-info": "^3.0.0-pre.1",
-    "can-util": "^3.0.0-pre.1"
+    "can-util": "^3.0.0-pre.21"
   },
   "devDependencies": {
     "documentjs": "^0.4.2",
@@ -70,5 +61,9 @@
     "generator-donejs": "^0.9.0",
     "donejs-cli": "^0.8.0",
     "done-serve": "^0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/canjs/can-compute.git"
   }
 }
