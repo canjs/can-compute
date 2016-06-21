@@ -32,7 +32,7 @@
 // - `_setUpdates` - if calling `_set` will have updated the cached value itself so `_get` does not need to be called.
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
-var ObserveInfo = require('can-observe-info');
+var Observation = require('can-observation');
 var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/');
 var canBatch = require('can-event/batch/');
@@ -118,7 +118,7 @@ var updateOnChange = function(compute, newValue, oldValue, batchNum){
 // will bind on source observables and update the value of the compute.
 var setupComputeHandlers = function(compute, func, context) {
 	// The last observeInfo object returned by getValueAndBind.
-	var readInfo = new ObserveInfo(func, context, compute);
+	var readInfo = new Observation(func, context, compute);
 
 	return {
 		// Call `onchanged` when any source observables change.
@@ -311,7 +311,7 @@ assign(Compute.prototype, {
 	// When a compute is first bound, call the internal `this._on` method.
 	// `can.__notObserve` makes sure if `_on` is listening to any observables,
 	// they will not be observed by any outer compute.
-	_eventSetup: ObserveInfo.notObserve(function () {
+	_eventSetup: Observation.ignore(function () {
 		this.bound = true;
 		this._on(this.updater);
 	}),
@@ -348,10 +348,10 @@ assign(Compute.prototype, {
 	get: function() {
 		// If an external compute is tracking observables and
 		// this compute can be listened to by "function" based computes ....
-		if(ObserveInfo.isRecording() && this._canObserve !== false) {
+		if(Observation.isRecording() && this._canObserve !== false) {
 
 			// ... tell the tracking compute to listen to change on this computed.
-			ObserveInfo.observe(this, 'change');
+			Observation.add(this, 'change');
 			// ... if we are not bound, we should bind so that
 			// we don't have to re-read to get the value of this compute.
 			if (!this.bound) {

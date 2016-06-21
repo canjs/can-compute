@@ -47,7 +47,7 @@
   },
   "dependencies": {
     "can-event": "^3.0.0-pre.1",
-    "can-observe-info": "^3.0.0-pre.1",
+    "can-observation": "^3.0.0-pre.0",
     "can-util": "^3.0.0-pre.21"
   },
   "devDependencies": {
