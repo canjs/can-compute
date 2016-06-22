@@ -2,7 +2,7 @@ var compute = require('can-compute');
 var Compute = require('can-compute/proto-compute');
 var QUnit = require('steal-qunit');
 var canBatch = require('can-event/batch/');
-var ObserveInfo = require('can-observe-info');
+var Observation = require('can-observation');
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -797,7 +797,7 @@ test("binding, unbinding, and rebinding works after a timeout (#2095)", function
 
 });
 
-test("ObserveInfo.isRecording observes doesn't understand ObserveInfo.notObserve (#2099)", function(){
+test("Observation.isRecording observes doesn't understand Observation.ignore (#2099)", function(){
 	expect(0);
 	var c = compute(1);
 	c.computeInstance.bind = function() {
@@ -805,7 +805,7 @@ test("ObserveInfo.isRecording observes doesn't understand ObserveInfo.notObserve
 	};
 
 	var outer = compute(function(){
-		ObserveInfo.notObserve(function(){
+		Observation.ignore(function(){
 			c();
 		})();
 	});
