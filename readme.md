@@ -5,12 +5,12 @@
 Compose observables.
 
 - <code>[__can-compute__ function](#can-compute-function)</code>
-  - <code>[canCompute( getterSetter[, context] )](#cancompute-gettersetter-context-)</code>
-  - <code>[canCompute( initialValue [, settings] )](#cancompute-initialvalue--settings-)</code>
-  - <code>[canCompute( initialValue, setter(newVal,oldVal) )](#cancompute-initialvalue-setternewvaloldval-)</code>
-  - <code>[canCompute( object, propertyName [, eventName] )](#cancompute-object-propertyname--eventname-)</code>
+  - <code>[compute( getterSetter[, context] )](#compute-gettersetter-context-)</code>
+  - <code>[compute( initialValue [, settings] )](#compute-initialvalue--settings-)</code>
+  - <code>[compute( initialValue, setter(newVal,oldVal) )](#compute-initialvalue-setternewvaloldval-)</code>
+  - <code>[compute( object, propertyName [, eventName] )](#compute-object-propertyname--eventname-)</code>
     - <code>[compute( [newVal] )](#compute-newval-)</code>
-    - <code>[canCompute.async(initialValue, computed(currentValue, setValue(newValue) )](#cancomputeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-)</code>
+    - <code>[compute.async(initialValue, computed(currentValue, setValue(newValue) )](#computeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-)</code>
     - <code>[asyncComputer function(lastSetValue, setVal)](#asynccomputer-functionlastsetvalue-setval)</code>
     - <code>[computeSettings Object](#computesettings-object)</code>
 
@@ -21,15 +21,15 @@ Compose observables.
 Create an observable value. 
 
 
-### <code>canCompute( getterSetter[, context] )</code>
+### <code>compute( getterSetter[, context] )</code>
 
 
 Create a compute that derives its value from [can-map]s and other [compute](#compute-newval-)s.
 
 ```js
-var age = canCompute(32);
+var age = compute(32);
 
-var nameAndAge = canCompute(function(){
+var nameAndAge = compute(function(){
 	return "Matthew - " + age();
 });
 
@@ -56,7 +56,7 @@ console.log(nameAndAge()); // -> Matthew - 33
   
   
 
-### <code>canCompute( initialValue [, settings] )</code>
+### <code>compute( initialValue [, settings] )</code>
 
 
 Creates a compute from a value and optionally specifies how to read, update, and 
@@ -69,7 +69,7 @@ create a compute that derives its value from any source.
   not provided, the compute simply updates its value to whatever the first argument 
   to the compute is.
   
-      var age = canCompute(30);
+      var age = compute(30);
       age() //-> 30
       age(31) //-> fires a "change" event
   
@@ -80,7 +80,7 @@ create a compute that derives its value from any source.
   binds an input element to a compute:
   
       var input = document.getElementById("age")
-      var value = canCompute("",{
+      var value = compute("",{
   		get: function(){
   			return input.value;
   		},
@@ -103,12 +103,12 @@ create a compute that derives its value from any source.
   
   
 
-### <code>canCompute( initialValue, setter(newVal,oldVal) )</code>
+### <code>compute( initialValue, setter(newVal,oldVal) )</code>
 
 
 Create a compute that has a setter that can adjust incoming new values.
 
-    var age = canCompute(6,function(newVal, oldVal){
+    var age = compute(6,function(newVal, oldVal){
       if(!isNaN(+newVal)){
         return +newVal;
       } else {
@@ -138,7 +138,7 @@ Create a compute that has a setter that can adjust incoming new values.
   A new compute.
   
 
-### <code>canCompute( object, propertyName [, eventName] )</code>
+### <code>compute( object, propertyName [, eventName] )</code>
 
 
 Create a compute from an object's property value. This short-cut
@@ -146,10 +146,10 @@ signature lets you create a compute on objects that have events
 that can be listened to with [can.bind].
 
     var input = document.getElementById('age')
-    var age = canCompute(input,"value","change");
+    var age = compute(input,"value","change");
     
     var me = new Map({name: "Justin"});
-    var name = canCompute(me,"name")
+    var name = compute(me,"name")
 
 
 1. __object__ <code>{Object}</code>:
@@ -187,7 +187,7 @@ that can be listened to with [can.bind].
   The current value of the compute.
   
 
-#### <code>canCompute.async(initialValue, computed(currentValue, setValue(newValue) )</code>
+#### <code>compute.async(initialValue, computed(currentValue, setValue(newValue) )</code>
 
 
 
@@ -207,12 +207,12 @@ that can be listened to with [can.bind].
 #### asyncComputer `{function(lastSetValue, setVal)}`
 
 
-A function that determines a value for an [async compute](#cancomputeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-).
+A function that determines a value for an [async compute](#computeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-).
 
 
 
 ##### <code>function(lastSetValue, setVal)</code>
-The function callback to [async](#cancomputeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-) that determines
+The function callback to [async](#computeasyncinitialvalue-computedcurrentvalue-setvaluenewvalue-) that determines
 the value of the compute.
 
 
@@ -256,7 +256,7 @@ the value of the compute.
   
 - __off__ <code>{function(function)}</code>:
   Called to teardown binding.
-  
+    
 ## Contributing
 
 ### Making a Build
