@@ -5,7 +5,7 @@
 
 Create a compute that can set its value after the computed function has been called.
 
-@signature `canCompute.async(initialValue, computed(currentValue, setValue(newValue) )`
+@signature `compute.async(initialValue, computed(currentValue, setValue(newValue) )`
 
 @param {*} The initial value of the compute.
 
@@ -24,9 +24,9 @@ The following compute is a live list of todos for a given
 userId. `todos` value would alternate between `null` and a Todo.List as `userId` changes.
 
 
-    var userId = canCompute(5)
+    var userId = compute(5)
     
-    var todos = canCompute.async(null, function(oldTodoList, setValue){
+    var todos = compute.async(null, function(oldTodoList, setValue){
       Todo.findAll({ userId: userId() }, function(todos){
         setValue(todos)
       });
@@ -36,9 +36,9 @@ userId. `todos` value would alternate between `null` and a Todo.List as `userId`
 
 The following replaces the list in place:
 
-    var userId = canCompute(5)
+    var userId = compute(5)
     
-    var todos = canCompute.async(new Todo.List(), function(todoList, setValue){
+    var todos = compute.async(new Todo.List(), function(todoList, setValue){
       todoList.replace( Todo.findAll({ userId: userId() })
       return todoList;
     });

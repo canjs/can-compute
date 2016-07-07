@@ -5,14 +5,14 @@
 
 @description Create an observable value.
 
-@signature `canCompute( getterSetter[, context] )`
+@signature `compute( getterSetter[, context] )`
 
 Create a compute that derives its value from [can-map]s and other [can-compute.computed compute]s.
 
 ```js
-var age = canCompute(32);
+var age = compute(32);
 
-var nameAndAge = canCompute(function(){
+var nameAndAge = compute(function(){
 	return "Matthew - " + age();
 });
 
@@ -33,7 +33,7 @@ values are read via [can-map.prototype.attr].
 @return {can-compute.computed} A new compute.
 
 
-@signature `canCompute( initialValue [, settings] )`
+@signature `compute( initialValue [, settings] )`
 
 Creates a compute from a value and optionally specifies how to read, update, and 
 listen to changes in dependent values. This form of compute can be used to 
@@ -43,7 +43,7 @@ create a compute that derives its value from any source.
 not provided, the compute simply updates its value to whatever the first argument 
 to the compute is.
 
-    var age = canCompute(30);
+    var age = compute(30);
     age() //-> 30
     age(31) //-> fires a "change" event
 
@@ -53,7 +53,7 @@ Configures all behaviors of the [can-compute.computed compute]. The following cr
 binds an input element to a compute:
 
     var input = document.getElementById("age")
-    var value = canCompute("",{
+    var value = compute("",{
 		get: function(){
 			return input.value;
 		},
@@ -73,11 +73,11 @@ binds an input element to a compute:
 
 
 
-@signature `canCompute( initialValue, setter(newVal,oldVal) )`
+@signature `compute( initialValue, setter(newVal,oldVal) )`
 
 Create a compute that has a setter that can adjust incoming new values.
 
-    var age = canCompute(6,function(newVal, oldVal){
+    var age = compute(6,function(newVal, oldVal){
       if(!isNaN(+newVal)){
         return +newVal;
       } else {
@@ -101,17 +101,17 @@ to determine if the compute has changed values.
 
 @return {can-compute.computed} A new compute.
 
-@signature `canCompute( object, propertyName [, eventName] )`
+@signature `compute( object, propertyName [, eventName] )`
 
 Create a compute from an object's property value. This short-cut
 signature lets you create a compute on objects that have events
 that can be listened to with [can.bind].
 
     var input = document.getElementById('age')
-    var age = canCompute(input,"value","change");
+    var age = compute(input,"value","change");
     
     var me = new Map({name: "Justin"});
-    var name = canCompute(me,"name")
+    var name = compute(me,"name")
 
 @param {Object} object An object that either has a `bind` method or
 a has events dispatched on it via [can.trigger].
@@ -149,7 +149,7 @@ The simplest way to use a compute is to have it store a single value, and to set
 that value needs to change:
 
 
-    var tally = canCompute(12);
+    var tally = compute(12);
     tally(); // 12
     
     tally.bind("change",function(ev, newVal, oldVal){
@@ -162,7 +162,7 @@ that value needs to change:
 Any value can be observed.  The following creates a compute
 that holds an object and then changes it to an array.
 
-    var data = canCompute({name: "Justin"})
+    var data = compute({name: "Justin"})
     data([{description: "Learn Computes"}])
 
 
@@ -183,7 +183,7 @@ that derives its value from two properties on the `person` observe:
         lastName: 'Liddell'
     });
     
-    var fullName = canCompute(function() {
+    var fullName = compute(function() {
         return person.attr('firstName') + ' ' + person.attr('lastName');
     });
     fullName.bind('change', function(ev, newVal, oldVal) {
@@ -209,11 +209,11 @@ our task observe has progress values between 0 and 1 like:
       progress: 0.75
     })
 
-Use `canCompute( getterSetter )` to create a compute that updates itself
+Use `compute( getterSetter )` to create a compute that updates itself
 when task's `progress` changes, but can also update progress when
 the compute function is called with a value.  For example:
 
-    var progressPercent = canCompute(function(percent){
+    var progressPercent = compute(function(percent){
       if(arguments.length){
         task.attr('progress', percent / 100)
       } else {
@@ -236,7 +236,7 @@ var wall = new Map({
     length: 10 // in feet
 });
 
-var wallLengthInMeters = canCompute(function(lengthInM) {
+var wallLengthInMeters = compute(function(lengthInM) {
     if(arguments.length) {
         wall.attr('length', lengthInM / 3.28084);
     } else {
@@ -259,7 +259,7 @@ When a compute's value is changed, it emits a _change_ event. You can listen for
 event by using `[computed.bind bind]` to bind an event handler to the compute:
 
 ```
-var tally = canCompute(0);
+var tally = compute(0);
 tally.bind('change', function(ev, newVal, oldVal) {
     console.log('The tally is now at ' + newVal + '.');
 });
