@@ -8,7 +8,7 @@ var Observation = require('can-observation');
 QUnit.module('can/compute');
 test('single value compute', function () {
 	var num = compute(1);
-	num.bind('change', function (ev, newVal, oldVal) {
+	num.on('change', function (ev, newVal, oldVal) {
 		equal(newVal, 2, 'newVal');
 		equal(oldVal, 1, 'oldVal');
 	});
@@ -24,7 +24,7 @@ test('inner computes values are not bound to', function () {
 	});
 
 	var handler = function () {};
-	outer.bind('change', handler);
+	outer.on('change', handler);
 	// We do a timeout because we temporarily bind on num so that we can use its cached value.
 	stop();
 	setTimeout(function () {
@@ -46,7 +46,7 @@ test('compute.truthy', function () {
 			return ++result;
 		}
 	});
-	tester.bind('change', function (ev, newVal, oldVal) {
+	tester.addEventListener('change', function (ev, newVal, oldVal) {
 		if (num() === 0) {
 			equal(newVal, 2, '2 is the new val');
 		} else if (num() === -1) {
