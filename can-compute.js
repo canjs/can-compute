@@ -37,7 +37,7 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 	var cid = CID(compute, 'compute');
 	var handlerKey = '__handler' + cid;
 
-	compute.bind = compute.addEventListener = function(ev, handler) {
+	compute.on = compute.bind = compute.addEventListener = function(ev, handler) {
 		var computeHandler = handler && handler[handlerKey];
 		if(handler && !computeHandler) {
 			computeHandler = handler[handlerKey] = function() {
@@ -47,7 +47,7 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 
 		return addEventListener.call(internalCompute, ev, computeHandler);
 	};
-	compute.unbind = compute.removeEventListener = function(ev, handler) {
+	compute.off = compute.unbind = compute.removeEventListener = function(ev, handler) {
 		var computeHandler = handler && handler[handlerKey];
 		if(computeHandler) {
 			delete handler[handlerKey];

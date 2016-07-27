@@ -123,13 +123,13 @@ var setupComputeHandlers = function(compute, func, context) {
 	return {
 		// Call `onchanged` when any source observables change.
 		_on: function() {
-			readInfo.getValueAndBind();
+			readInfo.start();
 			compute.value = readInfo.value;
 			compute.hasDependencies = !isEmptyObject(readInfo.newObserved);
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
-			readInfo.teardown();
+			readInfo.stop();
 		},
 		getDepth: function() {
 			return readInfo.getDepth();
