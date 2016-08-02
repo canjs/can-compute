@@ -1,12 +1,12 @@
-@typedef {{get: function, set: function, on: function, off: function}} computeSettings computeSettings
+@typedef {{get: function, set: function, on: function, off: function}} can-compute.computeSettings computeSettings
 @release 2.1
-@parent can.compute
+@parent can-compute
 
 @option {function} get A function that retrieves and returns the current value of the compute.
 @option {function(*,*):*} set(newVal,oldVal) A function that is used when setting a new value of the compute.
 
 A function that is called when a compute is called with an argument. The function is passed
-the first argumented passed to [can.computed compute] and the current value. If
+the first argumented passed to [can-computed] and the current value. If
 `set` returns a value, it is used to compare to the current value of the compute. Otherwise,
 `get` is called to get the current value of the compute and that value is used
 to determine if the compute has changed values.
