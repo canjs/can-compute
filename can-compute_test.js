@@ -882,3 +882,52 @@ test("canBatch.afterPreviousEvents firing too late (#2198)", function(){
 	compute1("x");
 	canBatch.stop();
 });
+
+
+test("Change propagation in a batch with late bindings (#2412)", function(){
+	console.clear();
+
+	var rootA = new Compute('a');
+	var rootB = new Compute('b');
+
+	var childA = new Compute(function() {
+	  console.log('rootA - start eval');
+	  return "childA"+rootA.get();
+	});
+	var something = function(){};
+	var grandChild = new Compute(function() {
+	  console.log('grandChild - start eval');
+
+	  var b = rootB.get();
+	  console.log(`grandChild - rootB: ${b}`);
+	  if (b === "b") {
+		return "grandChild->b";
+	  }
+	  something(grandChild);
+	  var a = childA.get();
+	  console.log(`grandChild - childA: ${a}`);
+	  return "grandChild->"+a;
+	});
+
+	console.log("rootA",rootA._cid);
+	console.log("rootB",rootB._cid);
+	console.log("childA",childA._cid);
+	console.log("grandChild",grandChild._cid);
+
+	childA.bind('change', function(ev, newVal, oldVal) {
+	  console.log(`childA change: ${newVal}`);
+	});
+
+	grandChild.bind('change', function(ev, newVal, oldVal) {
+	  equal(newVal, "grandChild->childAA");
+	});
+
+	console.log("GRANCHILD = "+grandChild.get()); // false
+
+	console.log("\nBATCH START\n");
+	canBatch.start();
+	rootA.set('A');
+	rootB.set('B');
+	canBatch.stop();
+
+});

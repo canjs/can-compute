@@ -348,7 +348,8 @@ assign(Compute.prototype, {
 	get: function() {
 		// If an external compute is tracking observables and
 		// this compute can be listened to by "function" based computes ....
-		if(Observation.isRecording() && this._canObserve !== false) {
+		var recordingObservation = Observation.isRecording();
+		if(recordingObservation && this._canObserve !== false) {
 
 			// ... tell the tracking compute to listen to change on this computed.
 			Observation.add(this, 'change');
@@ -360,6 +361,9 @@ assign(Compute.prototype, {
 		}
 		// If computed is bound, use the cached value.
 		if (this.bound) {
+			if(recordingObservation && this.observedInfo && this.observedInfo.getDepth() >= recordingObservation.getDepth()) {
+				Observation.updateUntil(this.observedInfo);
+			}
 			return this.value;
 		} else {
 			return this._get();
