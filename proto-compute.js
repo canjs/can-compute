@@ -117,22 +117,22 @@ var updateOnChange = function(compute, newValue, oldValue, batchNum){
 // A helper that creates an `_on` and `_off` function that
 // will bind on source observables and update the value of the compute.
 var setupComputeHandlers = function(compute, func, context) {
-	// The last observeInfo object returned by getValueAndBind.
-	var readInfo = new Observation(func, context, compute);
 
+	var observation = new Observation(func, context, compute);
+	compute.observation = observation;
 	return {
 		// Call `onchanged` when any source observables change.
 		_on: function() {
-			readInfo.start();
-			compute.value = readInfo.value;
-			compute.hasDependencies = !isEmptyObject(readInfo.newObserved);
+			observation.start();
+			compute.value = observation.value;
+			compute.hasDependencies = !isEmptyObject(observation.newObserved);
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
-			readInfo.stop();
+			observation.stop();
 		},
 		getDepth: function() {
-			return readInfo.getDepth();
+			return observation.getDepth();
 		}
 	};
 };
@@ -285,7 +285,7 @@ assign(Compute.prototype, {
 				};
 
 			// Because `setupComputeHandlers` calls `updater` internally with its
-			// readInfo.value as `oldValue` and that might not be up to date,
+			// observation.value as `oldValue` and that might not be up to date,
 			// we overwrite updater to always use self.value.
 			this.updater = function(newVal) {
 				oldUpdater.call(self, newVal, self.value);
@@ -348,7 +348,8 @@ assign(Compute.prototype, {
 	get: function() {
 		// If an external compute is tracking observables and
 		// this compute can be listened to by "function" based computes ....
-		if(Observation.isRecording() && this._canObserve !== false) {
+		var recordingObservation = Observation.isRecording();
+		if(recordingObservation && this._canObserve !== false) {
 
 			// ... tell the tracking compute to listen to change on this computed.
 			Observation.add(this, 'change');
@@ -360,7 +361,11 @@ assign(Compute.prototype, {
 		}
 		// If computed is bound, use the cached value.
 		if (this.bound) {
-			return this.value;
+			if(this.observation) {
+				return this.observation.get();
+			} else {
+				return this.value;
+			}
 		} else {
 			return this._get();
 		}
@@ -395,13 +400,8 @@ assign(Compute.prototype, {
 
 		// Setting may not fire a change event, in which case
 		// the value must be read
-		if (setVal === undefined) {
-			this.value = this._get();
-		} else {
-			this.value = setVal;
-		}
-		// Fire the change
-		updateOnChange(this, this.value, old);
+		this.updater(setVal === undefined ? this._get() : setVal, old);
+
 		return this.value;
 	},
 	// ## _set
@@ -413,6 +413,11 @@ assign(Compute.prototype, {
 	// Updates the cached value and fires an event if the value has changed.
 	updater: function(newVal, oldVal, batchNum) {
 		this.value = newVal;
+		if(this.observation) {
+			// it's possible the observation doesn't actually
+			// have any dependencies
+			this.observation.value = newVal;
+		}
 		updateOnChange(this, newVal, oldVal, batchNum);
 	},
 	// ## toFunction
@@ -427,6 +432,52 @@ assign(Compute.prototype, {
 
 		return this.get();
 	}
+	//!steal-remove-start
+	,
+	trace: function(){
+		var me = {
+			computeValue: this.get(),
+			definition: this.observation && this.observation.func,
+			cid: this._cid
+		};
+
+
+		if(this.observation) {
+			var deps = [];
+			for(var name in this.observation.newObserved) {
+				var obs = assign({},this.observation.newObserved[name]);
+				if(obs.obj.isComputed) {
+					deps.push(obs.obj.trace());
+
+				} else {
+					deps.push(obs);
+				}
+			}
+			me.dependencies = deps;
+		}
+		return me;
+	},
+	log: function(){
+		var log = function(trace){
+
+			if(trace.dependencies) {
+				console.group(trace.cid +" = "+trace.computeValue);
+				trace.dependencies.forEach(function(dep){
+					if(dep.computeValue) {
+						log(dep);
+					} else {
+						console.log(dep.obj, dep.event);
+					}
+				});
+				console.groupEnd();
+			} else {
+				console.log(trace.cid +" - "+ trace.computeValue);
+			}
+			return trace;
+		};
+		console.log( log(this.trace()) );
+	}
+	//!steal-remove-end
 });
 
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
