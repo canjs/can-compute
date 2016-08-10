@@ -891,43 +891,70 @@ test("Change propagation in a batch with late bindings (#2412)", function(){
 	var rootB = new Compute('b');
 
 	var childA = new Compute(function() {
-	  console.log('rootA - start eval');
 	  return "childA"+rootA.get();
 	});
-	var something = function(){};
+
 	var grandChild = new Compute(function() {
-	  console.log('grandChild - start eval');
 
 	  var b = rootB.get();
-	  console.log(`grandChild - rootB: ${b}`);
 	  if (b === "b") {
 		return "grandChild->b";
 	  }
-	  something(grandChild);
+
 	  var a = childA.get();
-	  console.log(`grandChild - childA: ${a}`);
 	  return "grandChild->"+a;
 	});
 
-	console.log("rootA",rootA._cid);
-	console.log("rootB",rootB._cid);
-	console.log("childA",childA._cid);
-	console.log("grandChild",grandChild._cid);
 
-	childA.bind('change', function(ev, newVal, oldVal) {
-	  console.log(`childA change: ${newVal}`);
-	});
+
+	childA.bind('change', function(ev, newVal, oldVal) {});
 
 	grandChild.bind('change', function(ev, newVal, oldVal) {
 	  equal(newVal, "grandChild->childAA");
 	});
 
-	console.log("GRANCHILD = "+grandChild.get()); // false
 
-	console.log("\nBATCH START\n");
 	canBatch.start();
 	rootA.set('A');
 	rootB.set('B');
 	canBatch.stop();
+
+});
+
+test("trace", function(){
+	var rootA = new Compute('a');
+	var rootB = new Compute('b');
+
+	var childA = new Compute(function() {
+	  return "childA"+rootA.get();
+	});
+
+	var fn = function() {
+		var b = rootB.get();
+		if (b === "b") {
+			return "grandChild->b";
+		}
+		var a = childA.get();
+		return "grandChild->"+a;
+	};
+	var grandChild = new Compute(fn);
+
+
+
+	childA.bind('change', function(ev, newVal, oldVal) {});
+
+	grandChild.bind('change', function(ev, newVal, oldVal) {
+	  equal(newVal, "grandChild->childAA");
+	});
+
+	var out = grandChild.trace();
+	equal(out.definition, fn, "got the right function");
+	equal(out.computeValue, "grandChild->b");
+	grandChild.log();
+	canBatch.start();
+	rootA.set('A');
+	rootB.set('B');
+	canBatch.stop();
+	grandChild.log();
 
 });
