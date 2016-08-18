@@ -3,6 +3,7 @@ var Compute = require('can-compute/proto-compute');
 var QUnit = require('steal-qunit');
 var canBatch = require('can-event/batch/');
 var Observation = require('can-observation');
+var DefineMap = require("can-define/map/map");
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -956,5 +957,17 @@ test("trace", function(){
 	rootB.set('B');
 	canBatch.stop();
 	grandChild.log();
+
+});
+
+test("compute(defineMap, 'property.names') works (#20)", function(){
+	var map = new DefineMap();
+	var c = compute(map, "foo.bar");
+	c.on("change", function(ev, newVal){
+		QUnit.equal(newVal, 2);
+	});
+
+	map.set("foo", new DefineMap());
+	map.foo.set("bar", 2);
 
 });
