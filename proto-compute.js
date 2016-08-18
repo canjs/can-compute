@@ -36,7 +36,7 @@ var Observation = require('can-observation');
 var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/');
 var canBatch = require('can-event/batch/');
-
+var observeReader = require("can-observation/reader/reader");
 
 
 var CID = require('can-util/js/cid/');
@@ -66,7 +66,21 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 		if (contextType === 'string') {
 			// Property computes.
 			// `new can.Compute(object, propertyName[, eventName])`
-			this._setupProperty(args[0], args[1], args[2]);
+			if(types.isMapLike( args[0] )) {
+				var map = args[0];
+				var propertyName = args[1];
+				var mapGetterSetter = function(newValue){
+					if(arguments.length) {
+						observeReader.set(map,propertyName, newValue);
+					} else {
+						return observeReader.get(map,propertyName);
+					}
+				};
+				this._setupGetterSetterFn(mapGetterSetter, args[1], args[2], args[3]);
+			} else {
+				this._setupProperty(args[0], args[1], args[2]);
+			}
+
 		} else if(contextType === 'function') {
 			// Setter computes.
 			// `new can.Compute(initialValue, function(newValue){ ... })`
@@ -156,39 +170,25 @@ assign(Compute.prototype, {
 	// ## Setup property computes
 	// Listen to a property changing on an object.
 	_setupProperty: function(target, propertyName, eventName) {
-		var isObserve = types.isMapLike( target ),
-			self = this,
+		var self = this,
 			handler;
 
-		// If a `can.Map`, setup to read  and write to that property.
-		if(isObserve) {
-			// We should pass the batchNum if there is one.
-			handler = function(ev, newVal,oldVal) {
-				self.updater(newVal, oldVal, ev.batchNum);
-			};
-			this.hasDependencies = true;
-			this._get = function() {
-				return target.attr(propertyName);
-			};
-			this._set = function(val) {
-				target.attr(propertyName, val);
-			};
-		} else {
-			// This is objects that can be bound to with can.bind.
-			handler = function () {
-				self.updater(self._get(), self.value);
-			};
-			this._get = function() {
-				return string.getObject(propertyName, [target]);
-			};
-			this._set = function(value) {
-				// allow setting properties n levels deep, if separated with dot syntax
-				var properties = propertyName.split("."),
-					leafPropertyName = properties.pop(),
-					targetProperty = string.getObject(properties.join('.'), [target]);
-				targetProperty[leafPropertyName] = value;
-			};
-		}
+
+		// This is objects that can be bound to with can.bind.
+		handler = function () {
+			self.updater(self._get(), self.value);
+		};
+		this._get = function() {
+			return string.getObject(propertyName, [target]);
+		};
+		this._set = function(value) {
+			// allow setting properties n levels deep, if separated with dot syntax
+			var properties = propertyName.split("."),
+				leafPropertyName = properties.pop(),
+				targetProperty = string.getObject(properties.join('.'), [target]);
+			targetProperty[leafPropertyName] = value;
+		};
+
 		this._on = function(update) {
 			canEvent.addEventListener.call(target, eventName || propertyName, handler);
 			// Set the cached value
