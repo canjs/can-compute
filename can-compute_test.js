@@ -4,6 +4,7 @@ var QUnit = require('steal-qunit');
 var canBatch = require('can-event/batch/');
 var Observation = require('can-observation');
 var DefineMap = require("can-define/map/map");
+var DefineList = require("can-define/list/list");
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -970,4 +971,14 @@ test("compute(defineMap, 'property.names') works (#20)", function(){
 	map.set("foo", new DefineMap());
 	map.foo.set("bar", 2);
 
+});
+
+test("compute(DefineList, 0) works (#17)", function(){
+	var list = new DefineList([1,2,3]);
+	var c = compute(list, 0);
+	c.on("change", function(ev, newVal){
+		QUnit.equal(newVal, 5);
+	});
+
+	list.set(0, 5);
 });

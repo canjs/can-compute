@@ -62,8 +62,8 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 		// Getter/Setter functional computes.
 		// `new can.Compute(function(){ ... })`
 		this._setupGetterSetterFn(args[0], args[1], args[2], args[3]);
-	} else if (args[1]) {
-		if (contextType === 'string') {
+	} else if (typeof args[1] !== 'undefined') {
+		if (contextType === 'string' || contextType === 'number') {
 			// Property computes.
 			// `new can.Compute(object, propertyName[, eventName])`
 			if(types.isMapLike( args[0] )) {
