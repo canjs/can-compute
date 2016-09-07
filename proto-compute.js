@@ -34,8 +34,8 @@
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
 var canEvent = require('can-event');
-var eventLifecycle = require('can-event/lifecycle/');
-var canBatch = require('can-event/batch/');
+var eventLifecycle = require('can-event/lifecycle/lifecycle');
+require('can-event/batch/batch');
 var observeReader = require("can-observation/reader/reader");
 
 
