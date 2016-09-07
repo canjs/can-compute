@@ -459,9 +459,11 @@ assign(Compute.prototype, {
 	},
 	log: function(){
 		var log = function(trace){
+			var group = console.group && console.group.bind(console) || console.log;
+			var groupEnd = console.groupEnd && console.groupEnd.bind(console) || function() {};
 
 			if(trace.dependencies) {
-				console.group(trace.cid +" = "+trace.computeValue);
+				group(trace.cid +" = "+trace.computeValue);
 				trace.dependencies.forEach(function(dep){
 					if(dep.computeValue) {
 						log(dep);
@@ -469,7 +471,7 @@ assign(Compute.prototype, {
 						console.log(dep.obj, dep.event);
 					}
 				});
-				console.groupEnd();
+				groupEnd();
 			} else {
 				console.log(trace.cid +" - "+ trace.computeValue);
 			}
