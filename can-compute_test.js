@@ -1,3 +1,5 @@
+require("./can-compute-async-test");
+
 var compute = require('can-compute');
 var Compute = require('can-compute/proto-compute');
 var QUnit = require('steal-qunit');
