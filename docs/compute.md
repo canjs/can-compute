@@ -7,7 +7,7 @@
 
 @signature `compute(getterSetter[, context])`
 
-Create a compute that derives its value from maps and other [can-compute.computed]s. Uses [can-observation.prototype.start] to call the `getterSetter` and track observables.
+Create a compute that derives its value from other observables. Uses [can-observation] to call the `getterSetter` and track observables.
 
 ```js
 var age = compute(32);
@@ -32,12 +32,12 @@ console.log(nameAndAge()); // -> Matthew - 33
 
 @signature `compute(initialValue [, settings])`
 
-Creates a compute from a value and optionally specifies how to read, update, and 
-listen to changes in dependent values. This form of compute can be used to 
+Creates a compute from a value and optionally specifies how to read, update, and
+listen to changes in dependent values. This form of compute can be used to
 create a compute that derives its value from any source.
 
 @param {*} initialValue The initial value of the compute. If `settings` is
-not provided, the compute simply updates its value to whatever the first argument 
+not provided, the compute simply updates its value to whatever the first argument
 to the compute is.
 
     var age = compute(30);
@@ -89,7 +89,7 @@ var age = compute(6,function(newVal, oldVal){
 
 The initial value of the compute.
 
-@param {function(*,*):*} setter(newVal,oldVal) 
+@param {function(*,*):*} setter(newVal,oldVal)
 
 A function that is called when a compute is called with an argument. The function is passed
 the first argumented passed to [can-compute.computed] and the current value. If
@@ -109,15 +109,14 @@ that can be listened to with [can-compute.computed.on].
 var input = document.getElementById('age')
 var age = compute(input,"value","change");
 
-var me = new Map({name: "Justin"});
+var me = new DefineMap({name: "Justin"});
 var name = compute(me,"name");
 ```
 
-@param {Object} object An object that either has an `on` method or
-a has events dispatched on it.
+@param {Object} object An object that has an `addEventListener` method and events dispatched on it.
 
 @param {String} propertyName The property value to read on `object`.  The
-property will be read via `object.attr(propertyName)` or `object[propertyame]`.
+property will be read via `object.attr(propertyName)` or `object[propertyName]`.
 
 @param {String} [eventName=propertyName] Specifies the event name to listen
 to on `object` for `propertyName` updates.
@@ -130,15 +129,15 @@ to on `object` for `propertyName` updates.
 ## Use
 
 `compute` lets you make an observable value. Computes are similar
-to observable maps such as [can-map] and can-define/map/map], but they represent a single value rather than a collection of values.
+to observable maps like [can-define/map/map], but they represent a single value rather than a collection of values.
 
-`compute` returns a [can-compute.computed] function that can 
+`compute` returns a [can-compute.computed] function that can
 be called to read and optionally update the compute's value.
 
 It's also possible to derive a compute's value from other computes, maps and lists.
 When the derived values change, the compute's value will be automatically updated.
 
-Use [can-compute.computed.on] to listen for changes of the 
+Use [can-compute.computed.on] to listen for changes of the
 compute's value.
 
 ## Observing a value
@@ -184,7 +183,7 @@ var person = new Person({
 });
 
 var fullName = compute(function() {
-	return person.firstName + ' ' + person.lastName;	
+	return person.firstName + ' ' + person.lastName;
 });
 
 fullName.on('change', function(ev, newVal, oldVal) {

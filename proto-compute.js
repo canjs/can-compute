@@ -120,7 +120,7 @@ var updateOnChange = function(compute, newValue, oldValue, batchNum){
 
 	// Only trigger event when value has changed
 	if (valueChanged) {
-		canBatch.trigger.call(compute, {type: "change", batchNum: batchNum}, [
+		canEvent.dispatch.call(compute, {type: "change", batchNum: batchNum}, [
 			newValue,
 			oldValue
 		]);
