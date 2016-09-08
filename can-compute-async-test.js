@@ -17,8 +17,6 @@ QUnit.asyncTest('async basics', 2, function () {
 	var canAsync = require("can-event/async/async");
 	canAsync.async();
 
-	var compute = require("can-compute");
-
 	var first = compute("Justin");
 	var last = compute("Meyer");
 
