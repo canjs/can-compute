@@ -973,11 +973,12 @@ test("compute(defineMap, 'property.names') works (#20)", function(){
 
 });
 
-test("compute(DefineList, 0) works (#17)", function(){
+test("compute(DefineList, 0) works (#17)", function(assert){
+	assert.expect(1);
 	var list = new DefineList([1,2,3]);
 	var c = compute(list, 0);
 	c.on("change", function(ev, newVal){
-		QUnit.equal(newVal, 5);
+		assert.equal(newVal, 5);
 	});
 
 	list.set(0, 5);
