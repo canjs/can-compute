@@ -280,9 +280,9 @@ assign(Compute.prototype, {
 			// that should update the value of the compute (`setValue`). To make this we need
 			// the "normal" updater function because we are about to overwrite it.
 			var oldUpdater = this.updater,
-				setValue = function(newVal) {
+				resolve = Observation.ignore(function(newVal) {
 					oldUpdater.call(self, newVal, self.value);
-				};
+				});
 
 			// Because `setupComputeHandlers` calls `updater` internally with its
 			// observation.value as `oldValue` and that might not be up to date,
@@ -294,7 +294,7 @@ assign(Compute.prototype, {
 
 			bindings = setupComputeHandlers(this, function() {
 				// Call getter, and get new value
-				var res = getter.call(settings.context, self.lastSetValue.get(), setValue);
+				var res = getter.call(settings.context, self.lastSetValue.get(), resolve);
 				// If undefined is returned, don't update the value.
 				return res !== undefined ? res : this.value;
 			}, this);
