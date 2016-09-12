@@ -973,3 +973,33 @@ test("compute(defineMap, 'property.names') works (#20)", function(){
 	map.foo.set("bar", 2);
 
 });
+
+test("Async getter causes infinite loop (#28)", function(){
+	var changeCount = 0;
+	var idCompute = compute(1);
+	stop();
+
+	var comp = compute.async(undefined, function(last, resolve) {
+		var id = idCompute();
+
+		setTimeout(function(){
+			resolve(changeCount + '|' + id);
+		});
+
+		resolve(changeCount + '|' + id);
+	}, null);
+
+	comp.bind('change', function(ev, newVal) {
+		changeCount++;
+		comp();
+	});
+
+	setTimeout(function(){
+		idCompute(2);
+	}, 50);
+
+	setTimeout(function() {
+		equal(changeCount, 4);
+		start();
+	}, 100);
+});
