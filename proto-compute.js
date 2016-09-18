@@ -62,18 +62,23 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 		// Getter/Setter functional computes.
 		// `new can.Compute(function(){ ... })`
 		this._setupGetterSetterFn(args[0], args[1], args[2], args[3]);
-	} else if (args[1]) {
-		if (contextType === 'string') {
+	} else if (args[1] !== undefined) {
+		if (contextType === 'string' || contextType === 'number') {
 			// Property computes.
 			// `new can.Compute(object, propertyName[, eventName])`
-			if(types.isMapLike( args[0] )) {
+			var isListLike = types.isListLike(args[0]);
+			if(types.isMapLike( args[0] ) || isListLike) {
 				var map = args[0];
 				var propertyName = args[1];
 				var mapGetterSetter = function(newValue){
 					if(arguments.length) {
 						observeReader.set(map,propertyName, newValue);
 					} else {
-						return observeReader.get(map,propertyName);
+						// forces length to be read
+						if(isListLike) {
+							observeReader.get(map,"length");
+						}
+						return observeReader.get(map,""+propertyName);
 					}
 				};
 				this._setupGetterSetterFn(mapGetterSetter, args[1], args[2], args[3]);
