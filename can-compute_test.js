@@ -982,7 +982,6 @@ test("compute(DefineList, 0) works (#17)", function(assert){
 	c.on("change", function(ev, newVal){
 		assert.equal(newVal, 5);
 	});
-
 	list.set(0, 5);
 });
 
