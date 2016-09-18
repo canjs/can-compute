@@ -48,8 +48,8 @@ QUnit.asyncTest('async can immediately read', 4, function () {
 	});
 	var firedEvents = false;
 	fullName.on("change", function(ev, newVal, oldVal){
-		QUnit.equal( newVal,  "Payal Shah");
-		QUnit.equal( oldVal, "Justin Meyer");
+		QUnit.equal( newVal,  "Payal Shah", "change newVal");
+		QUnit.equal( oldVal, "Justin Meyer", "change oldVal");
 		firedEvents = true;
 		QUnit.start();
 	});

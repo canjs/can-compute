@@ -46,15 +46,15 @@
     "npmAlgorithm": "flat"
   },
   "dependencies": {
-    "can-event": "^3.0.0-pre.9",
+    "can-event": "^3.0.0-pre.12",
     "can-observation": "^3.0.0-pre.11",
-    "can-util": "^3.0.0-pre.34"
+    "can-util": "^3.0.0-pre.50"
   },
   "devDependencies": {
     "bit-docs": "0.0.6",
-    "can-define": "^0.7.18",
+    "can-define": "^0.8.0",
     "cssify": "^1.0.2",
-    "done-serve": "^0.2.4",
+    "done-serve": "^0.2.5",
     "donejs-cli": "^0.9.5",
     "generator-donejs": "^0.9.0",
     "jshint": "^2.9.1",
