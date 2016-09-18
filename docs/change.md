@@ -1,5 +1,5 @@
 @typedef {Event} can-compute.computed.ChangeEvent change
-@parent can-compute.computed
+@parent can-compute/computed/events
 
 Event fired when the value of the [can-compute.computed] changes.
 

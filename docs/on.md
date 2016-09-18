@@ -1,5 +1,6 @@
 @function can-compute.computed.on compute().on
-@parent can-compute.computed
+@parent can-compute/computed/methods
+
 
 @signature `compute.on(eventType, handler)`
 

@@ -1,5 +1,7 @@
 @function can-compute.computed compute()
 @parent can-compute
+@group can-compute/computed/events events
+@group can-compute/computed/methods methods
 
 @description A derived value from other computes and observable maps.
 
@@ -8,7 +10,7 @@
 Gets the compute's value if no arguments are provided, otherwise calls the compute's setter with the value passed as the first argument.
 
 @param {*} [newVal] If the compute is called with an argument, the first argument is used
-to set the compute to a new value. This may trigger a 
+to set the compute to a new value. This may trigger a
 `"change"` event that can be listened for with [can-computed.bind].
 
 If the compute is called without any arguments (`compute()`), it simply returns
