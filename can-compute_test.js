@@ -7,6 +7,7 @@ var canBatch = require('can-event/batch/');
 var Observation = require('can-observation');
 var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
+var domDispatch = require("can-util/dom/dispatch/dispatch");
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -1013,4 +1014,16 @@ test("Async getter causes infinite loop (#28)", function(){
 		equal(changeCount, 4);
 		start();
 	}, 100);
+});
+
+test("Listening to input change", function(){
+	var input = document.createElement("input");
+	var comp = compute(input, "value", "input");
+
+	comp.on("change", function(){
+		ok(true, "it changed");
+	});
+
+	input.value = 'foo';
+	domDispatch.call(input, "input");
 });

@@ -24,25 +24,12 @@
     "release:pre": "npm version prerelease && npm publish"
   },
   "main": "can-compute",
-  "browser": {
-    "transform": [
-      "cssify"
-    ]
-  },
-  "browserify": {
-    "transform": [
-      "cssify"
-    ]
-  },
   "keywords": [
     "canjs",
     "canjs-plugin",
     "donejs"
   ],
   "system": {
-    "configDependencies": [
-      "live-reload"
-    ],
     "npmAlgorithm": "flat"
   },
   "dependencies": {
@@ -53,7 +40,6 @@
   "devDependencies": {
     "bit-docs": "0.0.6",
     "can-define": "^0.8.0",
-    "cssify": "^1.0.2",
     "done-serve": "^0.2.5",
     "donejs-cli": "^0.9.5",
     "generator-donejs": "^0.9.0",

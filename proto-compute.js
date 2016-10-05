@@ -195,12 +195,12 @@ assign(Compute.prototype, {
 		};
 
 		this._on = function(update) {
-			canEvent.addEventListener.call(target, eventName || propertyName, handler);
+			canEvent.on.call(target, eventName || propertyName, handler);
 			// Set the cached value
 			this.value = this._get();
 		};
 		this._off = function() {
-			return canEvent.removeEventListener.call( target, eventName || propertyName, handler);
+			return canEvent.off.call( target, eventName || propertyName, handler);
 		};
 	},
 	// ## Setup Setter Computes
