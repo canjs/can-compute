@@ -2,6 +2,7 @@
 @parent can-core
 @release 1.1
 @link ../docco/compute/compute.html docco
+@package ../package.json
 
 @description Create an observable value.
 
