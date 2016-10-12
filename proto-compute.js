@@ -464,19 +464,28 @@ assign(Compute.prototype, {
 	},
 	log: function(){
 		var log = function(trace){
-			var group = console.group ? console.group : console.log;
-			var groupEnd = console.groupEnd ? console.groupEnd : function() {};
+			var currentTrace = '';
 
-			if(trace.dependencies) {
-				group.call(console, trace.cid + " = " + trace.computeValue);
+			if(trace.dependencies && trace.dependencies.length) {
+				currentTrace = trace.cid + " = " + trace.computeValue;
+				
+				if(console.group) {
+					console.group(currentTrace);
+				} else {
+					console.log(currentTrace);
+				}
+
 				trace.dependencies.forEach(function(dep){
-					if(dep.computeValue) {
+					if(dep.hasOwnProperty("computeValue")) {
 						log(dep);
 					} else {
 						console.log(dep.obj, dep.event);
 					}
 				});
-				groupEnd.call(console);
+				
+				if(console.groupEnd) {
+					console.groupEnd();
+				}
 			} else {
 				console.log(trace.cid +" - "+ trace.computeValue);
 			}
