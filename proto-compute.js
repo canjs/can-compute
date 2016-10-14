@@ -36,13 +36,12 @@ var Observation = require('can-observation');
 var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/lifecycle');
 require('can-event/batch/batch');
-var observeReader = require("can-observation/reader/reader");
-
+var observeReader = require('can-observation/reader/reader');
+var getObject = require('can-util/js/get/get');
 
 var CID = require('can-util/js/cid/');
 var assign = require('can-util/js/assign/');
 var types = require('can-util/js/types/');
-var string = require('can-util/js/string/');
 var isEmptyObject = require('can-util/js/is-empty-object/');
 
 // ## can.Compute
@@ -184,13 +183,13 @@ assign(Compute.prototype, {
 			self.updater(self._get(), self.value);
 		};
 		this._get = function() {
-			return string.getObject(propertyName, [target]);
+			return getObject(target, propertyName);
 		};
 		this._set = function(value) {
 			// allow setting properties n levels deep, if separated with dot syntax
 			var properties = propertyName.split("."),
 				leafPropertyName = properties.pop(),
-				targetProperty = string.getObject(properties.join('.'), [target]);
+				targetProperty = getObject(target, properties.join('.'));
 			targetProperty[leafPropertyName] = value;
 		};
 
