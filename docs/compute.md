@@ -129,29 +129,85 @@ to on `object` for `propertyName` updates.
 
 ## Use
 
-`compute` lets you make an observable value. Computes are similar
+`can-compute` exports a function that lets you make an observable value.  The following
+makes an observable `age` compute whose value changes from `33` to `34`:
+
+```js
+var compute = require("can-compute");
+
+var age = compute(33);
+age(); // 33
+
+age.on("change",function(ev, newVal, oldVal){
+	newVal //-> 34
+	oldVal //-> 33
+})
+
+age(34);
+age(); // 33
+```
+
+Computes are similar
 to observable maps like [can-define/map/map], but they represent a single value rather than a collection of values.
 
-`compute` returns a [can-compute.computed] function that can
-be called to read and optionally update the compute's value.
+Computes can derive their value from other computes, maps and lists.
+When the derived values change, the compute's value will be automatically updated.  This
+is `can-compute`'s best feature.  For example, the following combines the age
+compute in the previous example, and a `name` compute into an `info` compute:
 
-It's also possible to derive a compute's value from other computes, maps and lists.
-When the derived values change, the compute's value will be automatically updated.
+```js
+var age = compute(33),
+	name = compute("Justin"),
+	info = compute(function(){
+		return name() +" is "+age()+"."
+	});
 
-Use [can-compute.computed.on] to listen for changes of the
-compute's value.
+info() //-> "Justin is 33."
+```
+
+If we listen to [can-compute.computed.ChangeEvent] on `info`, if either `age` or `name`
+changes, `info` will be updated automatically:
+
+```js
+info.on("change", function(ev, newVal, oldVal){
+	newVal //-> "Justin is 34."
+});
+
+age(34)
+```
+
+Computes are similar to event streams like `Bacon.js` or `RXJS`.  However, computes
+are easier to compose values because:
+
+ - you can just read other observables and computes and return a value.  
+ - you don't have to manage subscribing and merging streams yourself.
+
+Also, computes can also have [can-event/batch/batch batched updates] to prevent unnecessary
+updates. For example, if both `age` and `name` were changed at the same time, we
+could prevent `info` from updating twice with:
+
+```js
+var canBatch = require("can-event/batch/batch");
+
+canBatch.start();
+age(35)
+name("Justin Meyer")
+canBatch.stop();
+```
+
+There are a wide variety of ways to create computes. Read on to understand the basics.
 
 ## Observing a value
 
 The simplest way to use a compute is to have it store a single value, and to set it when
 that value needs to change:
 
-```js
+```
 var tally = compute(12);
 tally(); // 12
 
 tally.on("change",function(ev, newVal, oldVal){
-	console.log(newVal,oldVal)
+    console.log(newVal,oldVal)
 })
 
 tally(13);

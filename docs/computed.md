@@ -1,4 +1,4 @@
-@function can-compute.computed compute()
+@function can-compute.computed compute
 @parent can-compute
 @group can-compute/computed/events events
 @group can-compute/computed/methods methods

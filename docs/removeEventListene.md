@@ -1,14 +1,14 @@
-@function can-compute.computed.on on
+@function can-compute.computed.removeEventListener removeEventListener
 @parent can-compute/computed/methods
 
 Listen to when a compute changes value.
 
-@signature `compute.on(eventType, handler)`
+@signature `compute.removeEventListener(eventType, handler)`
 
 ```js
 var age = compute(33);
 
-age.on('change', function(ev, newVal, oldVal){
+age.removeEventListener('change', function(ev, newVal, oldVal){
 	ev //-> {type: "change", batchNum: 5}
 	newVal //-> 34
 	oldVal //-> 33
