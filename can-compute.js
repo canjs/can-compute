@@ -21,49 +21,58 @@ var namespace = require('can-util/namespace');
 
 // The `can.compute` generator function.
 
+
+var addEventListener = function(ev, handler){
+	var compute = this;
+	var computeHandler = handler && handler[compute.handlerKey];
+	if(handler && !computeHandler) {
+		computeHandler = handler[compute.handlerKey] = function() {
+			handler.apply(compute, arguments);
+		};
+	}
+
+	return compute.computeInstance.addEventListener(ev, computeHandler);
+};
+
+var removeEventListener = function(ev, handler){
+	var compute = this;
+
+	var computeHandler = handler && handler[compute.handlerKey];
+
+	if(computeHandler) {
+		delete handler[compute.handlerKey];
+		return compute.computeInstance.removeEventListener(ev, computeHandler);
+	}
+	return compute.computeInstance.removeEventListener.apply(compute.computeInstance, arguments);
+};
+
+
 var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
-	// Create an internal `can.Compute`.
-	var internalCompute = new Compute(getterSetter, context, eventName, bindOnce);
-	// The "compute" function that calls compute instance's get or set function.
-	var addEventListener = internalCompute.addEventListener;
-	var removeEventListener = internalCompute.removeEventListener;
-	var compute = function(val) {
+
+	function compute(val) {
 		if(arguments.length) {
-			return internalCompute.set(val);
+			return compute.computeInstance.set(val);
 		}
 
-		return internalCompute.get();
-	};
+		return compute.computeInstance.get();
+	}
 	var cid = CID(compute, 'compute');
-	var handlerKey = '__handler' + cid;
 
-	compute.on = compute.bind = compute.addEventListener = function(ev, handler) {
-		var computeHandler = handler && handler[handlerKey];
-		if(handler && !computeHandler) {
-			computeHandler = handler[handlerKey] = function() {
-				handler.apply(compute, arguments);
-			};
-		}
+	// Create an internal `can.Compute`.
+	compute.computeInstance = new Compute(getterSetter, context, eventName, bindOnce);
 
-		return addEventListener.call(internalCompute, ev, computeHandler);
-	};
-	compute.off = compute.unbind = compute.removeEventListener = function(ev, handler) {
-		var computeHandler = handler && handler[handlerKey];
-		if(computeHandler) {
-			delete handler[handlerKey];
-			return internalCompute.removeEventListener(ev, computeHandler);
-		}
-		return removeEventListener.apply(internalCompute, arguments);
-	};
-	compute.isComputed = internalCompute.isComputed;
+	compute.handlerKey = '__handler' + cid;
+	compute.on = compute.bind = compute.addEventListener = addEventListener;
+	compute.off = compute.unbind = compute.removeEventListener = removeEventListener;
+
+	compute.isComputed = compute.computeInstance.isComputed;
+
 	compute.clone = function(ctx) {
 		if(typeof getterSetter === 'function') {
 			context = ctx;
 		}
 		return COMPUTE(getterSetter, context, ctx, bindOnce);
 	};
-
-	compute.computeInstance = internalCompute;
 
 	return compute;
 };
