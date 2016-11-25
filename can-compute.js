@@ -13,10 +13,10 @@
 
 
 require('can-event');
-require('can-event/batch/');
+require('can-event/batch/batch');
 
 var Compute = require('./proto-compute');
-var CID = require('can-util/js/cid/');
+var CID = require('can-util/js/cid/cid');
 var namespace = require('can-util/namespace');
 
 // The `can.compute` generator function.

@@ -39,10 +39,10 @@ require('can-event/batch/batch');
 var observeReader = require('can-observation/reader/reader');
 var getObject = require('can-util/js/get/get');
 
-var CID = require('can-util/js/cid/');
-var assign = require('can-util/js/assign/');
-var types = require('can-util/js/types/');
-var isEmptyObject = require('can-util/js/is-empty-object/');
+var CID = require('can-util/js/cid/cid');
+var assign = require('can-util/js/assign/assign');
+var types = require('can-util/js/types/types');
+var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
