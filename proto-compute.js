@@ -39,9 +39,9 @@ require('can-event/batch/batch');
 var observeReader = require('can-observation/reader/reader');
 var getObject = require('can-util/js/get/get');
 
-var CID = require('can-util/js/cid/cid');
+var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
-var types = require('can-util/js/types/types');
+var types = require('can-types');
 var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
 
 // ## can.Compute
