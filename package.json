@@ -29,11 +29,6 @@
     "canjs-plugin",
     "donejs"
   ],
-  "steal": {
-    "plugins": [
-      "steal-qunit"
-    ]
-  },
   "dependencies": {
     "can-cid": "^1.0.0",
     "can-event": "^3.0.1",
