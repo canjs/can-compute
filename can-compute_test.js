@@ -724,7 +724,7 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 			return child2()+grandChild();
 		});
 
-	/*console.log("root", root.computeInstance._cid,
+	/*canLog.log("root", root.computeInstance._cid,
 		"child", child.computeInstance._cid,
 		"grandChild", grandChild.computeInstance._cid,
 		"combine", combine.computeInstance._cid);*/
@@ -734,13 +734,13 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 	});
 
 	/*root.bind("change", function(ev, newVal){
-		console.log("root change", ev.batchNum)
+		canLog.log("root change", ev.batchNum)
 	});
 	child.bind("change", function(ev, newVal){
-		console.log("child change", ev.batchNum)
+		canLog.log("child change", ev.batchNum)
 	});
 	grandChild.bind("change", function(ev, newVal){
-		console.log("grandChild change", ev.batchNum)
+		canLog.log("grandChild change", ev.batchNum)
 	});*/
 
 	canBatch.start();
@@ -890,8 +890,6 @@ test("canBatch.afterPreviousEvents firing too late (#2198)", function(){
 
 
 test("Change propagation in a batch with late bindings (#2412)", function(){
-	console.clear();
-
 	var rootA = new Compute('a');
 	var rootB = new Compute('b');
 
