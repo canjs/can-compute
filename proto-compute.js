@@ -43,6 +43,7 @@ var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
 var types = require('can-types');
 var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
+var canLog = require('can-util/js/log/log');
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
@@ -468,25 +469,25 @@ assign(Compute.prototype, {
 			if(trace.dependencies && trace.dependencies.length) {
 				currentTrace = trace.cid + " = " + trace.computeValue;
 				
-				if(console.group) {
+				if(console && console.group) {
 					console.group(currentTrace);
 				} else {
-					console.log(currentTrace);
+					canLog.log(currentTrace);
 				}
 
 				trace.dependencies.forEach(function(dep){
 					if(dep.hasOwnProperty("computeValue")) {
 						log(dep);
 					} else {
-						console.log(dep.obj, dep.event);
+						canLog.log(dep.obj, dep.event);
 					}
 				});
 				
-				if(console.groupEnd) {
+				if(console && console.groupEnd) {
 					console.groupEnd();
 				}
 			} else {
-				console.log(trace.cid +" - "+ trace.computeValue);
+				canLog.log(trace.cid +" - "+ trace.computeValue);
 			}
 			return trace;
 		};
