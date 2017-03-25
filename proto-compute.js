@@ -42,8 +42,11 @@ var getObject = require('can-util/js/get/get');
 var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
 var types = require('can-types');
-var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
 var canLog = require('can-util/js/log/log');
+var canReflect = require('can-reflect/reflections/get-set/get-set');
+var canSymbol = require('can-symbol');
+
+var singleReference = require("./single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
@@ -144,7 +147,6 @@ var setupComputeHandlers = function(compute, func, context) {
 		_on: function() {
 			observation.start();
 			compute.value = observation.value;
-			compute.hasDependencies = !isEmptyObject(observation.newObserved);
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
@@ -468,7 +470,7 @@ assign(Compute.prototype, {
 
 			if(trace.dependencies && trace.dependencies.length) {
 				currentTrace = trace.cid + " = " + trace.computeValue;
-				
+
 				if(console && console.group) {
 					console.group(currentTrace);
 				} else {
@@ -482,7 +484,7 @@ assign(Compute.prototype, {
 						canLog.log(dep.obj, dep.event);
 					}
 				});
-				
+
 				if(console && console.groupEnd) {
 					console.groupEnd();
 				}
@@ -497,8 +499,38 @@ assign(Compute.prototype, {
 	//!steal-remove-end
 });
 
+var hasDependencies = function(){
+	return this.observation && this.observation.hasDependencies();
+};
+Object.defineProperty(Compute.prototype,"hasDependencies",{
+	get: hasDependencies
+});
+canReflect.set(Observation.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
+
+
+
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
 Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
+
+
+
+
+canReflect.set(Compute.prototype, canSymbol.for("can.onValue"), function(handler){
+	var translationHandler = function(ev, newValue){
+		handler(newValue);
+	};
+	singleReference.set(handler, this, translationHandler);
+
+	this.addEventListener("change", translationHandler);
+});
+
+canReflect.set(Compute.prototype, canSymbol.for("can.offValue"), function(handler){
+	this.removeEventListener("change", singleReference.getAndDelete(handler, this) );
+});
+
+canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), function(){
+	return this.get();
+});
 
 var k = function(){};
 // A list of temporarily bound computes

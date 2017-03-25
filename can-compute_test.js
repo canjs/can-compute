@@ -8,6 +8,7 @@ var Observation = require('can-observation');
 var DefineMap = require("can-define/map/map");
 var DefineList = require("can-define/list/list");
 var domDispatch = require("can-util/dom/dispatch/dispatch");
+var canReflect = require("can-reflect");
 //require('./read_test');
 
 QUnit.module('can/compute');
@@ -1026,4 +1027,41 @@ test("Listening to input change", function(){
 
 	input.value = 'foo';
 	domDispatch.call(input, "input");
+});
+
+test("works with can-reflect", 4,function(){
+	var c = compute(0);
+
+	QUnit.equal( canReflect.getValue(c), 0, "unbound value");
+
+	var handler = function(newValue){
+		QUnit.equal(newValue, 1, "observed new value");
+
+		canReflect.offValue(c, handler);
+
+	};
+
+	canReflect.onValue(c, handler);
+	QUnit.ok( !canReflect.valueHasDependencies(c), "valueHasDependencies");
+
+	c(1);
+
+	QUnit.equal( canReflect.getValue(c), 1, "bound value");
+	c(2);
+
+});
+
+QUnit.test("can-reflect valueHasDependencies", function(){
+	var a = compute("a");
+	var b = compute("b");
+
+	var c = compute(function(){
+		return a() +  b();
+	});
+
+	c.on("change", function(){});
+
+	QUnit.ok( canReflect.valueHasDependencies(c), "valueHasDependencies");
+
+
 });
