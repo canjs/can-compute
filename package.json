@@ -1,6 +1,6 @@
 {
   "name": "can-compute",
-  "version": "3.1.0-pre.0",
+  "version": "3.1.0",
   "description": "compose observables",
   "homepage": "http://canjs.com",
   "author": {
@@ -36,8 +36,8 @@
     "can-observation": "^3.2.0-pre.3",
     "can-types": "^1.0.1",
     "can-util": "^3.2.2",
-	"can-reflect": "^0.X",
-	"can-symbol": "^0.X"
+    "can-reflect": "^0.X",
+    "can-symbol": "^0.X"
   },
   "devDependencies": {
     "bit-docs": "0.0.7",
