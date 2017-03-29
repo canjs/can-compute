@@ -40,4 +40,4 @@ var singleReference;
 	};
 /*}*/
 
-module.exports = window.singleReference = singleReference;
+module.exports = singleReference;
