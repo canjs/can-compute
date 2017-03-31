@@ -330,7 +330,7 @@ tally(tally() + 5); // The log reads:
 
 ## Caching values
 
-Computes that are bounded to will cache their values and only update when one of its source observables change.
+A compute that has an event listener will cache its value and only update when one of its source observables change.
 
 For example:
 
