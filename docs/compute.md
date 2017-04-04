@@ -345,11 +345,11 @@ var hero = {
 	})
 }
 hero.fullName.on('change', function() {}); // bind to compute
-console.log(hero.fullName); // console.logs "Wonder Woman"
+console.log(hero.fullName()); // console.logs "Wonder Woman"
 foo.first = "Super";
-console.log(hero.fullName); // console.logs "Wonder Woman" because the source observable (last) hasn't changed
+console.log(hero.fullName()); // console.logs "Wonder Woman" because the source observable (last) hasn't changed
 last("Man");
-console.log(hero.fullName); // console.logs "Super Man" because fullName updates its value now after hearing the change on "last"
+console.log(hero.fullName()); // console.logs "Super Man" because fullName updates its value now after hearing the change on "last"
 ```
 In contrast, if we didn't bind to the compute:
 
@@ -363,9 +363,9 @@ var hero = {
 		return foo.first + ' ' + last();
 	})
 }
-console.log(hero.fullName); // console.logs "Wonder Woman"
+console.log(hero.fullName()); // console.logs "Wonder Woman"
 foo.first = "Super";
-console.log(hero.fullName); // console.logs "Super Woman" because fullName did not cache its previous value
+console.log(hero.fullName()); // console.logs "Super Woman" because fullName did not cache its previous value
 last("Man");
-console.log(hero.fullName); // console.logs "Super Man"
+console.log(hero.fullName()); // console.logs "Super Man"
 ```
