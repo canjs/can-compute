@@ -33,8 +33,8 @@ test('inner computes values are not bound to', function () {
 	// We do a timeout because we temporarily bind on num so that we can use its cached value.
 	stop();
 	setTimeout(function () {
-		equal(num.computeInstance._bindings, 1, 'inner compute only bound once');
-		equal(outer.computeInstance._bindings, 1, 'outer compute only bound once');
+		equal(num.computeInstance.__bindEvents._lifecycleBindings, 1, 'inner compute only bound once');
+		equal(outer.computeInstance.__bindEvents._lifecycleBindings, 1, 'outer compute only bound once');
 		start();
 	}, 50);
 });
