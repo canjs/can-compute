@@ -43,7 +43,7 @@ var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
 var types = require('can-types');
 var canLog = require('can-util/js/log/log');
-var canReflect = require('can-reflect/reflections/get-set/get-set');
+var canReflect = require('can-reflect');
 var canSymbol = require('can-symbol');
 
 var singleReference = require("./single-reference");
@@ -368,6 +368,7 @@ assign(Compute.prototype, {
 		}
 		// If computed is bound, use the cached value.
 		if (this.bound) {
+			// if it has dependencies ... it should do some stuff ...
 			if(this.observation) {
 				return this.observation.get();
 			} else {
@@ -505,7 +506,7 @@ var hasDependencies = function(){
 Object.defineProperty(Compute.prototype,"hasDependencies",{
 	get: hasDependencies
 });
-canReflect.set(Observation.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
+canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
 
 
 
@@ -532,28 +533,10 @@ canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), function(){
 	return this.get();
 });
 
-var k = function(){};
-// A list of temporarily bound computes
-var computes;
-// Unbinds all temporarily bound computes.
-var unbindComputes = function () {
-	for (var i = 0, len = computes.length; i < len; i++) {
-		computes[i].removeEventListener('change', k);
-	}
-	computes = null;
-};
 
 // ### temporarilyBind
 // Binds computes for a moment to cache their value and prevent re-calculating it.
-Compute.temporarilyBind = function (compute) {
-	var computeInstance = compute.computeInstance || compute;
-	computeInstance.addEventListener('change', k);
-	if (!computes) {
-		computes = [];
-		setTimeout(unbindComputes, 10);
-	}
-	computes.push(computeInstance);
-};
+Compute.temporarilyBind = Observation.temporarilyBind;
 
 // ### async
 // A simple helper that makes an async compute a bit easier.

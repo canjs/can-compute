@@ -33,7 +33,7 @@
     "can-cid": "^1.0.0",
     "can-event": "^3.1.2",
     "can-namespace": "1.0.0",
-    "can-observation": "^3.2.0-pre.3",
+    "can-observation": "^3.2.0-pre.6",
     "can-types": "^1.0.1",
     "can-util": "^3.2.2",
     "can-reflect": "^0.X",
@@ -41,7 +41,7 @@
   },
   "devDependencies": {
     "bit-docs": "0.0.7",
-    "can-define": "^1.0.1",
+    "can-define": "^1.2.0-pre.1",
     "done-serve": "^0.2.5",
     "donejs-cli": "^0.9.5",
     "generator-donejs": "^0.9.0",
