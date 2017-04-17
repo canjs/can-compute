@@ -85,9 +85,6 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 COMPUTE.truthy = function (compute) {
 	return COMPUTE(function () {
 		var res = compute();
-		if (typeof res === 'function') {
-			res = res();
-		}
 		return !!res;
 	});
 };
