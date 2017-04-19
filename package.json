@@ -42,7 +42,7 @@
     "can-define": "^1.0.1",
     "done-serve": "^0.2.5",
     "donejs-cli": "^0.9.5",
-    "generator-donejs": "^0.9.0",
+    "generator-donejs": "^1.0.4",
     "jshint": "^2.9.1",
     "steal": "^1.2.8",
     "steal-qunit": "^1.0.1",
