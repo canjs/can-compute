@@ -518,7 +518,7 @@ Compute.temporarilyBind = function (compute) {
 	computeInstance.addEventListener('change', k);
 	if (!computes) {
 		computes = [];
-		setTimeout(unbindComputes, 10);
+		setImmediate(unbindComputes);
 	}
 	computes.push(computeInstance);
 };
