@@ -925,6 +925,39 @@ test("Change propagation in a batch with late bindings (#2412)", function(){
 });
 
 if (Compute.prototype.trace) {
+
+	// test('derp', function(){
+		
+	// 	var a = new Compute('Hello');
+	// 	var gw = function(){
+	// 		var greeting = a.get();
+	// 		return greeting + ' World';
+	// 	};
+		
+	// 	var b = new Compute(gw);
+	
+	// 	var gwe = function(){
+	// 		var s = b.get();
+	// 		return s + '!';
+	// 	};
+
+	// 	var c = new Compute(gwe);
+
+	// 	c.bind('change', function(ev, newVal, oldVal) {
+	// 		console.log(ev, newVal, oldVal);
+	// 	});
+
+	// 	var aTrace = a.trace();
+	// 	console.log(aTrace);
+	// 	var bTrace = b.trace();
+	// 	console.log(bTrace);
+	// 	var cTrace = c.trace();
+	// 	console.log(cTrace);
+		
+
+	// 	equal(0, 0);
+	// });
+
 	test("trace", function(){
 		var rootA = new Compute('a');
 		var rootB = new Compute('b');
@@ -939,6 +972,7 @@ if (Compute.prototype.trace) {
 				return "grandChild->b";
 			}
 			var a = childA.get();
+			// console.log(a);
 			return "grandChild->"+a;
 		};
 		var grandChild = new Compute(fn);
@@ -948,10 +982,12 @@ if (Compute.prototype.trace) {
 		childA.bind('change', function(ev, newVal, oldVal) {});
 
 		grandChild.bind('change', function(ev, newVal, oldVal) {
+			// console.log(newVal, oldVal);
 			equal(newVal, "grandChild->childAA");
 		});
 
 		var out = grandChild.trace();
+		// console.log(out);
 		equal(out.definition, fn, "got the right function");
 		equal(out.computeValue, "grandChild->b");
 		grandChild.log();
