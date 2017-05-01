@@ -4,7 +4,7 @@
 These methods are not available in the final distribution bundle and are thus for development purposes only.
 
 ### `.log()`
-Log the trace of a `Compute`.
+Generate and log a trace for a given instance of `Compute`.
 
 ```js
 var a = new Compute('a');
@@ -15,7 +15,7 @@ console.log(aTrace); //-> {computeValue: "a", definition: undefined, cid: "compu
 - __returns__ `{Object}`: Trace of `Compute`.
 
 ### `.trace()`
-Generate a trace for a `Compute`.
+Generate a trace for a given instance of `Compute`.
 
 ```js
 var a = new Compute('Hello');
@@ -46,7 +46,7 @@ function fn(){
 - __returns__ `{Object}`: Trace of `Compute`.
 
 ### Trace Object
-- __computeValue__ `{Any}` The current computed value.
-- __cid__ `{String}` Unique identifier of `Compute`.
-- __dependencies__ `{Array}` List of `Compute` dependencies.
-- __definition__ `{Function || undefined}`
+- __computeValue__ `{Any}` Current computed value of a given `Compute` instance.
+- __cid__ `{String}` Unique identifier of a given `Compute` instance.
+- __dependencies__ `{Array}` List of traces for each `Compute` dependency.
+- __definition__ `{Function || undefined}` Reference to the original definition function if applicable.
