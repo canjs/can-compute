@@ -40,14 +40,14 @@
   "devDependencies": {
     "bit-docs": "0.0.7",
     "can-define": "^1.0.1",
-    "done-serve": "^0.2.5",
-    "donejs-cli": "^0.9.5",
+    "done-serve": "^1.2.0",
+    "donejs-cli": "^1.0.1",
     "generator-donejs": "^1.0.4",
     "jshint": "^2.9.1",
     "steal": "^1.2.8",
     "steal-qunit": "^1.0.1",
     "steal-tools": "^1.1.2",
-    "testee": "^0.4.0"
+    "testee": "^0.5.0"
   },
   "repository": {
     "type": "git",
