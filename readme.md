@@ -1,5 +1,7 @@
 # can-compute
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/canjs/can-compute.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/canjs/can-compute.png?branch=master)](https://travis-ci.org/canjs/can-compute)
 
 Compose observables.
