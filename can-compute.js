@@ -24,6 +24,7 @@ var canSymbol = require('can-symbol');
 var canOnValueSymbol = canSymbol.for("can.onValue"),
 	canOffValueSymbol = canSymbol.for("can.offValue"),
 	canGetValue = canSymbol.for("can.getValue"),
+	canSetValue = canSymbol.for("can.setValue"),
 	canValueHasDependencies = canSymbol.for("can.valueHasDependencies");
 
 var singleReference = require("./single-reference");
@@ -56,6 +57,9 @@ var onValue = function(handler){
 	},
 	getValue = function(){
 		return this.computeInstance.get();
+	},
+	setValue = function(value){
+		return this.computeInstance.set(value);
 	},
 	hasDependencies = function(){
 		return this.computeInstance.hasDependencies;
@@ -93,6 +97,7 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 	canReflect.set(compute, canOnValueSymbol, onValue);
 	canReflect.set(compute, canOffValueSymbol, offValue);
 	canReflect.set(compute, canGetValue, getValue);
+	canReflect.set(compute, canSetValue, setValue);
 	canReflect.set(compute, canValueHasDependencies, hasDependencies);
 	return compute;
 };

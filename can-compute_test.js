@@ -953,7 +953,7 @@ if (Compute.prototype.trace) {
 		var out = grandChild.trace();
 		equal(out.definition, fn, "got the right function");
 		equal(out.computeValue, "grandChild->b");
-		grandChild.log();
+		console.log( grandChild.log() );
 		canBatch.start();
 		rootA.set('A');
 		rootB.set('B');
@@ -1020,7 +1020,7 @@ test("works with can-reflect", 4,function(){
 	};
 
 	canReflect.onValue(c, handler);
-	QUnit.ok( !canReflect.valueHasDependencies(c), "valueHasDependencies");
+	QUnit.equal( canReflect.valueHasDependencies(c), undefined, "valueHasDependencies");
 
 	c(1);
 
@@ -1042,4 +1042,15 @@ QUnit.test("can-reflect valueHasDependencies", function(){
 	QUnit.ok( canReflect.valueHasDependencies(c), "valueHasDependencies");
 
 
+});
+
+QUnit.test("can-reflect setValue", function(){
+	var a = compute("a"),
+		b = new Compute("b");
+
+	canReflect.setValue(a, "A");
+	QUnit.equal(a(), "A", "compute");
+
+	canReflect.setValue(b, "B");
+	QUnit.equal(b.get(), "B", "compute");
 });

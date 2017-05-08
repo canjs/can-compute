@@ -529,9 +529,8 @@ canReflect.set(Compute.prototype, canSymbol.for("can.offValue"), function(handle
 	this.removeEventListener("change", singleReference.getAndDelete(handler, this) );
 });
 
-canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), function(){
-	return this.get();
-});
+canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), Compute.prototype.get);
+canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
 
 
 // ### temporarilyBind
