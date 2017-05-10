@@ -1,4 +1,5 @@
 require("./can-compute-async-test");
+require("./can-compute-deferred-test");
 
 var compute = require('can-compute');
 var Compute = require('can-compute/proto-compute');

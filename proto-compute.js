@@ -125,7 +125,7 @@ var updateOnChange = function(compute, newValue, oldValue, batchNum){
 	var valueChanged = newValue !== oldValue && !(newValue !== newValue && oldValue !== oldValue);
 
 	// Only trigger event when value has changed
-	if (valueChanged) {
+	if (valueChanged || compute.observation.deferred === true) {
 		canEvent.dispatch.call(compute, {type: "change", batchNum: batchNum}, [
 			newValue,
 			oldValue
@@ -228,6 +228,23 @@ assign(Compute.prototype, {
 				oldUpdater = this.updater;
 			this.updater = function() {
 				oldUpdater.call(self, self._get(), self.value);
+			};
+		}
+
+		if (settings.deferred) {
+			this._canObserve = true;
+
+			// The helper provides the on and off methods that use `getValueAndBind`.
+			var handlers = setupComputeHandlers(this, function() {});
+			assign(this, handlers);
+
+			this.observation.makeDeferred();
+
+			this.startDeferred = function() {
+				return this.observation.startDeferred();
+			};
+			this.stopDeferred = function() {
+				return this.observation.stopDeferred();
 			};
 		}
 
@@ -469,7 +486,7 @@ assign(Compute.prototype, {
 
 			if(trace.dependencies && trace.dependencies.length) {
 				currentTrace = trace.cid + " = " + trace.computeValue;
-				
+
 				if(console && console.group) {
 					console.group(currentTrace);
 				} else {
@@ -483,7 +500,7 @@ assign(Compute.prototype, {
 						canLog.log(dep.obj, dep.event);
 					}
 				});
-				
+
 				if(console && console.groupEnd) {
 					console.groupEnd();
 				}
@@ -530,6 +547,14 @@ Compute.async = function(initialValue, asyncComputer, context){
 	return new Compute(initialValue, {
 		fn: asyncComputer,
 		context: context
+	});
+};
+
+// ### deferred
+// A simple helper that makes an deferred compute a bit easier.
+Compute.deferred = function(){
+	return new Compute(undefined, {
+		deferred: true
 	});
 };
 

@@ -98,6 +98,23 @@ COMPUTE.async = function(initialValue, asyncComputer, context){
 	});
 };
 
+// ### deferred
+// A simple helper that makes an deferred compute a bit easier.
+COMPUTE.deferred = function(){
+	var deferred = COMPUTE(undefined, {
+		deferred: true
+	});
+
+	deferred.startDeferred = function() {
+		return this.computeInstance.startDeferred();
+	};
+	deferred.stopDeferred = function() {
+		return this.computeInstance.stopDeferred();
+	};
+
+	return deferred;
+};
+
 // ### compatability
 // Setting methods that should not be around in 3.0.
 COMPUTE.temporarilyBind = Compute.temporarilyBind;
