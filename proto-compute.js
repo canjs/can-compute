@@ -560,4 +560,15 @@ Compute.truthy = function(compute) {
 	});
 };
 
+canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
+canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), Compute.prototype.get);
+canReflect.set(Compute.prototype, canSymbol.for("can.isValueLike"), true);
+
+canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
+	return !!this.__bindEvents && this.__bindEvents._lifecycleBindings > 0;
+});
+canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
+	return this.__bindEvents && this.__bindEvents.change;
+});
+
 module.exports = exports = Compute;
