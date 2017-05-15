@@ -27,12 +27,12 @@ var singleReference;
 	singleReference = {
 		// obj is a function ... we need to place `value` on it so we can retreive it
 		// we can't use a global map
-		set: function(obj, key, value){
+		set: function(obj, key, value, extraKey){
 			// check if it has a single reference map
-			canReflect.set(obj, CID(key), value);
+			canReflect.set(obj, extraKey ? CID(key) + ":" + extraKey : CID(key), value);
 		},
-		getAndDelete: function(obj, key){
-			var cid = CID(key);
+		getAndDelete: function(obj, key, extraKey){
+			var cid = extraKey ? CID(key) + ":" + extraKey : CID(key);
 			var value = canReflect.get(obj, cid);
 			canReflect.delete(obj, cid);
 			return value;
