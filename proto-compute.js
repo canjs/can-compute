@@ -38,6 +38,7 @@ var eventLifecycle = require('can-event/lifecycle/lifecycle');
 require('can-event/batch/batch');
 var observeReader = require('can-observation/reader/reader');
 var getObject = require('can-util/js/get/get');
+var setImmediate = require('can-util/js/set-immediate/set-immediate');
 
 var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');

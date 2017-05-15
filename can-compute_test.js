@@ -580,6 +580,18 @@ test("Listening to input change", function(){
 	domDispatch.call(input, "input");
 });
 
+test("compute.truthy with functions (canjs/can-stache#172)", function () {
+	var func = compute(function() {
+		return function() {
+			ok(false, "should not be run");
+		};
+	});
+
+	var truthy = compute.truthy(func);
+
+	equal(truthy(), true);
+});
+
 test("works with can-reflect", 5, function(){
 	var c = compute(0);
 

@@ -327,3 +327,45 @@ tally.on('change', function(ev, newVal, oldVal) {
 tally(tally() + 5); // The log reads:
                     // 'The tally is now at 5.'
 ```
+
+## Caching values
+
+A compute that has an event listener will cache its value and only update when one of its source observables change.
+
+For example:
+
+```js
+var foo = {
+	first: "Wonder"
+};
+var last = compute("Woman");
+var hero = {
+	fullName: compute(function() {
+		return foo.first + ' ' + last();
+	})
+}
+hero.fullName.on('change', function() {}); // bind to compute
+console.log(hero.fullName()); // console.logs "Wonder Woman"
+foo.first = "Super";
+console.log(hero.fullName()); // console.logs "Wonder Woman" because the source observable (last) hasn't changed
+last("Man");
+console.log(hero.fullName()); // console.logs "Super Man" because fullName updates its value now after hearing the change on "last"
+```
+In contrast, if we didn't bind to the compute:
+
+```js
+var foo = {
+	first: "Wonder"
+};
+var last = compute("Woman");
+var hero = {
+	fullName: compute(function() {
+		return foo.first + ' ' + last();
+	})
+}
+console.log(hero.fullName()); // console.logs "Wonder Woman"
+foo.first = "Super";
+console.log(hero.fullName()); // console.logs "Super Woman" because fullName did not cache its previous value
+last("Man");
+console.log(hero.fullName()); // console.logs "Super Man"
+```
