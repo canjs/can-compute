@@ -4,7 +4,7 @@ var Compute = require('can-compute/proto-compute');
 var canBatch = require('can-event/batch/');
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
-
+var DefineMap = require("can-define/map/map");
 
 QUnit.module('can/Compute');
 
@@ -393,26 +393,22 @@ if (Compute.prototype.trace) {
 	});
 }
 
-test("works with can-reflect", 6, function(){
+test("works with can-reflect", 5, function(){
 	var c = new Compute(0);
 
 	QUnit.equal( canReflect.getValue(c), 0, "unbound value");
 
-	var handler = function(newValue){
-		QUnit.equal(newValue, 1, "observed new value");
-
-		canReflect.offValue(c, handler);
-
-	};
 	QUnit.ok(canReflect.isValueLike(c), "isValueLike is true");
 
 	QUnit.ok( !canReflect.valueHasDependencies(c), "valueHasDependencies -- false");
-	canReflect.onValue(c, handler);
-	QUnit.ok( canReflect.valueHasDependencies(c), "valueHasDependencies -- true");
+	var d = new Compute(function() {
+		return c.get();
+	});
+	QUnit.ok( canReflect.valueHasDependencies(d), "valueHasDependencies -- true");
 
 	c.set(1);
 
-	QUnit.equal( canReflect.getValue(c), 1, "bound value");
+	QUnit.equal( canReflect.getValue(d), 1, "bound value");
 	c.set(2);
 
 });
@@ -426,15 +422,23 @@ QUnit.test("can-reflect setValue", function(){
 
 QUnit.test("can-reflect getValueDependencies", function() { 
 	var a = new Compute("a");
-	var b;
+	var b, c, m;
 
-	ok(!canReflect.getValueDependencies(a), "No dependencies before binding");
+	var aDeps = canReflect.getValueDependencies(a);
+	QUnit.deepEqual(aDeps, {}, "No dependencies before binding");
 	b = new Compute(function() {
 		return a.get();
 	});
 	b.on("change", function() {});
-	ok(canReflect.getValueDependencies(b), "dependencies exist");
-	equal(canReflect.getValueDependencies(b), b.__bindEvents.change, "dependencies returned");
+	ok(canReflect.getValueDependencies(b).valueDependencies, "dependencies exist");
+	ok(canReflect.getValueDependencies(b).valueDependencies.has(a), "value dependencies returned");
+
+	m = new DefineMap({ foo: "bar" });
+	c = new Compute(function() {
+		return m.foo + "baz";
+	});
+	ok(canReflect.getValueDependencies(c).keyDependencies, "dependencies exist");
+	deepEqual(canReflect.getValueDependencies(c).keyDependencies.get(m), ["foo"], "key dependencies returned");	
 
 });
 
