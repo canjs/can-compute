@@ -404,6 +404,7 @@ test("works with can-reflect", 5, function(){
 	var d = new Compute(function() {
 		return c.get();
 	});
+	d.on("change", function() {});
 	QUnit.ok( canReflect.valueHasDependencies(d), "valueHasDependencies -- true");
 
 	c.set(1);
@@ -425,7 +426,7 @@ QUnit.test("can-reflect getValueDependencies", function() {
 	var b, c, m;
 
 	var aDeps = canReflect.getValueDependencies(a);
-	QUnit.deepEqual(aDeps, {}, "No dependencies before binding");
+	QUnit.equal(aDeps, undefined, "No dependencies before binding");
 	b = new Compute(function() {
 		return a.get();
 	});
@@ -437,6 +438,7 @@ QUnit.test("can-reflect getValueDependencies", function() {
 	c = new Compute(function() {
 		return m.foo + "baz";
 	});
+	c.on("change", function() {});
 	ok(canReflect.getValueDependencies(c).keyDependencies, "dependencies exist");
 	deepEqual(canReflect.getValueDependencies(c).keyDependencies.get(m), ["foo"], "key dependencies returned");	
 

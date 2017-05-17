@@ -41,9 +41,6 @@ var getObject = require('can-util/js/get/get');
 
 var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
-var CIDMap = require('can-util/js/cid-map/cid-map');
-var CIDSet = require('can-util/js/cid-set/cid-set');
-var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
 var types = require('can-types');
 var canLog = require('can-util/js/log/log');
 var canReflect = require('can-reflect');
@@ -569,30 +566,15 @@ canReflect.set(Compute.prototype, canSymbol.for("can.isMapLike"), false);
 canReflect.set(Compute.prototype, canSymbol.for("can.isListLike"), false);
 
 canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
-	Compute.temporarilyBind(this);
-	return !!this.observation &&
-		typeof this.observation.newObserved === "object" &&
-		!isEmptyObject(this.observation.newObserved);
+	return this.observation &&
+		canReflect.valueHasDependencies(this.observation);
 });
 canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
-	var rets = {};
-	Compute.temporarilyBind(this);
 	if(this.observation) {
-		canReflect.eachKey(this.observation.newObserved || {}, function(dep) {
-			if(canReflect.isValueLike(dep.obj)) {
-				rets.valueDependencies = rets.valueDependencies || new CIDSet();
-				rets.valueDependencies.add(dep.obj);
-			} else {
-				rets.keyDependencies = rets.keyDependencies || new CIDMap();
-				if(rets.keyDependencies.get(dep.obj)) {
-					rets.keyDependencies.get(dep.obj).push(dep.event);
-				} else {
-					rets.keyDependencies.set(dep.obj, [dep.event]);
-				}
-			}
-		});
+		return canReflect.getValueDependencies(this.observation);
+	} else {
+		return undefined;
 	}
-	return rets;
 });
 
 module.exports = exports = Compute;

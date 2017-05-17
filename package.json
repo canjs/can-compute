@@ -33,11 +33,11 @@
     "can-cid": "^1.0.0",
     "can-event": "^3.3.0",
     "can-namespace": "1.0.0",
-    "can-observation": "^3.2.0-pre.6",
-    "can-types": "^1.0.1",
-    "can-util": "^3.2.2",
+    "can-observation": "^3.2.0-pre.8",
     "can-reflect": "^0.X",
-    "can-symbol": "^0.X"
+    "can-symbol": "^0.X",
+    "can-types": "^1.0.1",
+    "can-util": "^3.2.2"
   },
   "devDependencies": {
     "bit-docs": "0.0.7",
