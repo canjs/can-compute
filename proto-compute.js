@@ -45,7 +45,7 @@ var types = require('can-types');
 var canLog = require('can-util/js/log/log');
 var canReflect = require('can-reflect');
 var canSymbol = require('can-symbol');
-
+var CIDSet = require('can-util/js/cid-set/cid-set');
 var singleReference = require("./single-reference");
 
 // ## can.Compute
@@ -566,15 +566,17 @@ canReflect.set(Compute.prototype, canSymbol.for("can.isMapLike"), false);
 canReflect.set(Compute.prototype, canSymbol.for("can.isListLike"), false);
 
 canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
-	return this.observation &&
-		canReflect.valueHasDependencies(this.observation);
+	return !!this.observation;
 });
 canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
+	var ret;
 	if(this.observation) {
-		return canReflect.getValueDependencies(this.observation);
-	} else {
-		return undefined;
+		ret = {
+			valueDependencies: new CIDSet()
+		};
+		ret.valueDependencies.add(this.observation);
 	}
+	return ret;
 });
 
 module.exports = exports = Compute;

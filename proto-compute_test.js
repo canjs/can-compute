@@ -432,15 +432,15 @@ QUnit.test("can-reflect getValueDependencies", function() {
 	});
 	b.on("change", function() {});
 	ok(canReflect.getValueDependencies(b).valueDependencies, "dependencies exist");
-	ok(canReflect.getValueDependencies(b).valueDependencies.has(a), "value dependencies returned");
+	ok(canReflect.getValueDependencies(b).valueDependencies.has(b.observation), "value dependencies returned");
 
 	m = new DefineMap({ foo: "bar" });
 	c = new Compute(function() {
 		return m.foo + "baz";
 	});
 	c.on("change", function() {});
-	ok(canReflect.getValueDependencies(c).keyDependencies, "dependencies exist");
-	deepEqual(canReflect.getValueDependencies(c).keyDependencies.get(m), ["foo"], "key dependencies returned");	
+	ok(canReflect.getValueDependencies(c).valueDependencies, "dependencies exist");
+	ok(canReflect.getValueDependencies(c).valueDependencies.has(c.observation), "value dependencies returned");	
 
 });
 
