@@ -517,8 +517,8 @@ Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEvent
 
 
 canReflect.set(Compute.prototype, canSymbol.for("can.onValue"), function(handler){
-	var translationHandler = function(ev, newValue, oldValue){
-		handler(newValue, oldValue);
+	var translationHandler = function(ev, newValue){
+		handler(newValue);
 	};
 	singleReference.set(handler, this, translationHandler);
 

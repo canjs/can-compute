@@ -592,18 +592,17 @@ test("compute.truthy with functions (canjs/can-stache#172)", function () {
 	equal(truthy(), true);
 });
 
-test("works with can-reflect", 6, function(){
+test("works with can-reflect", 5, function(){
 	var c = compute(0);
 
 	QUnit.equal( canReflect.getValue(c), 0, "unbound value");
 
-	var handler = function(newValue, oldValue){
+	var handler = function(newValue){
 		QUnit.equal(newValue, 1, "observed new value");
-		QUnit.equal(oldValue, 0, "observed old value");
 
 		canReflect.offValue(c, handler);
-	};
 
+	};
 	QUnit.ok(canReflect.isValueLike(c), "isValueLike is true");
 
 	canReflect.onValue(c, handler);
@@ -639,9 +638,8 @@ QUnit.test("registered symbols", function() {
 	a[canSymbol.for("can.setValue")]("b");
 	equal(a(), "b", "can.setValue");
 
-	function handler(newVal, oldVal) {
-		equal(newVal, "c", "can.onValue gets newVal");
-		equal(oldVal, "b", "can.onValue gets oldVal");
+	function handler(val) {
+		equal(val, "c", "can.onValue");
 	}
 
 	a[canSymbol.for("can.onValue")](handler);
