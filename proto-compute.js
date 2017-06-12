@@ -46,7 +46,7 @@ var canLog = require('can-util/js/log/log');
 var canReflect = require('can-reflect');
 var canSymbol = require('can-symbol');
 var CIDSet = require('can-util/js/cid-set/cid-set');
-var singleReference = require("./single-reference");
+var singleReference = require("can-util/js/single-reference/single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.

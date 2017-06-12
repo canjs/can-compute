@@ -18,6 +18,7 @@ require('can-event/batch/batch');
 var Compute = require('./proto-compute');
 var CID = require('can-cid');
 var namespace = require('can-namespace');
+var singleReference = require("can-util/js/single-reference/single-reference");
 
 var canReflect = require('can-reflect/reflections/get-set/get-set');
 var canSymbol = require('can-symbol');
@@ -30,9 +31,6 @@ var canOnValueSymbol = canSymbol.for("can.onValue"),
 	isListLike = canSymbol.for("can.isListLike"),
 	canValueHasDependencies = canSymbol.for("can.valueHasDependencies"),
 	canGetValueDependencies = canSymbol.for("can.getValueDependencies");
-
-var singleReference = require("./single-reference");
-
 
 // The `can.compute` generator function.
 var addEventListener = function(ev, handler){
