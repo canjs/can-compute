@@ -41,7 +41,6 @@ var getObject = require('can-util/js/get/get');
 
 var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
-var types = require('can-types');
 var canLog = require('can-util/js/log/log');
 var canReflect = require('can-reflect');
 var canSymbol = require('can-symbol');
@@ -69,8 +68,9 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 		if (contextType === 'string' || contextType === 'number') {
 			// Property computes.
 			// `new can.Compute(object, propertyName[, eventName])`
-			var isListLike = types.isListLike(args[0]);
-			if(types.isMapLike( args[0] ) || isListLike) {
+			var isListLike = canReflect.isObservableLike(args[0]) && canReflect.isListLike(args[0]);
+			var isMapLike = canReflect.isObservableLike(args[0]) && canReflect.isMapLike(args[0]);
+			if(isMapLike || isListLike) {
 				var map = args[0];
 				var propertyName = args[1];
 				var mapGetterSetter = function(newValue){
