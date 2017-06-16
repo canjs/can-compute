@@ -29,6 +29,7 @@ var canOnValueSymbol = canSymbol.for("can.onValue"),
 	isValueLike = canSymbol.for("can.isValueLike"),
 	isMapLike = canSymbol.for("can.isMapLike"),
 	isListLike = canSymbol.for("can.isListLike"),
+	isFunctionLike = canSymbol.for("can.isFunctionLike"),
 	canValueHasDependencies = canSymbol.for("can.valueHasDependencies"),
 	canGetValueDependencies = canSymbol.for("can.getValueDependencies");
 
@@ -106,6 +107,7 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 	canReflect.set(compute, isValueLike, true);
 	canReflect.set(compute, isMapLike, false);
 	canReflect.set(compute, isListLike, false);
+	canReflect.set(compute, isFunctionLike, false);
 	canReflect.set(compute, canValueHasDependencies, hasDependencies);
 	canReflect.set(compute, canGetValueDependencies, getDependencies);
 	return compute;
