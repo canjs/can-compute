@@ -1028,6 +1028,14 @@ test("Listening to input change", function(){
 	domDispatch.call(input, "input");
 });
 
+test("Setting an input to change", function(){
+	var input = document.createElement("input");
+	var comp = compute(input, "value", "input");
+
+	comp("foo");
+	ok(input.value === "foo");
+});
+
 test("compute.truthy with functions (canjs/can-stache#172)", function () {
 	var func = compute(function() {
 		return function() {

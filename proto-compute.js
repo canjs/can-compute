@@ -190,9 +190,14 @@ assign(Compute.prototype, {
 		this._set = function(value) {
 			// allow setting properties n levels deep, if separated with dot syntax
 			var properties = propertyName.split("."),
-				leafPropertyName = properties.pop(),
-				targetProperty = getObject(target, properties.join('.'));
-			targetProperty[leafPropertyName] = value;
+				leafPropertyName = properties.pop();
+
+			if(properties.length) {
+				var targetProperty = getObject(target, properties.join('.'));
+				targetProperty[leafPropertyName] = value;
+			} else {
+				target[propertyName] = value;
+			}
 		};
 
 		this._on = function(update) {
