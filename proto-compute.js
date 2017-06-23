@@ -38,13 +38,14 @@ var eventLifecycle = require('can-event/lifecycle/lifecycle');
 require('can-event/batch/batch');
 var observeReader = require('can-observation/reader/reader');
 var getObject = require('can-util/js/get/get');
-var setImmediate = require('can-util/js/set-immediate/set-immediate');
 
 var CID = require('can-cid');
 var assign = require('can-util/js/assign/assign');
-var types = require('can-types');
-var isEmptyObject = require('can-util/js/is-empty-object/is-empty-object');
 var canLog = require('can-util/js/log/log');
+var canReflect = require('can-reflect');
+var canSymbol = require('can-symbol');
+var CIDSet = require('can-util/js/cid-set/cid-set');
+var singleReference = require("can-util/js/single-reference/single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
@@ -67,8 +68,9 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 		if (contextType === 'string' || contextType === 'number') {
 			// Property computes.
 			// `new can.Compute(object, propertyName[, eventName])`
-			var isListLike = types.isListLike(args[0]);
-			if(types.isMapLike( args[0] ) || isListLike) {
+			var isListLike = canReflect.isObservableLike(args[0]) && canReflect.isListLike(args[0]);
+			var isMapLike = canReflect.isObservableLike(args[0]) && canReflect.isMapLike(args[0]);
+			if(isMapLike || isListLike) {
 				var map = args[0];
 				var propertyName = args[1];
 				var mapGetterSetter = function(newValue){
@@ -145,7 +147,6 @@ var setupComputeHandlers = function(compute, func, context) {
 		_on: function() {
 			observation.start();
 			compute.value = observation.value;
-			compute.hasDependencies = !isEmptyObject(observation.newObserved);
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
@@ -372,6 +373,7 @@ assign(Compute.prototype, {
 		}
 		// If computed is bound, use the cached value.
 		if (this.bound) {
+			// if it has dependencies ... it should do some stuff ...
 			if(this.observation) {
 				return this.observation.get();
 			} else {
@@ -474,7 +476,7 @@ assign(Compute.prototype, {
 
 			if(trace.dependencies && trace.dependencies.length) {
 				currentTrace = trace.cid + " = " + trace.computeValue;
-				
+
 				if(console && console.group) {
 					console.group(currentTrace);
 				} else {
@@ -488,7 +490,7 @@ assign(Compute.prototype, {
 						canLog.log(dep.obj, dep.event);
 					}
 				});
-				
+
 				if(console && console.groupEnd) {
 					console.groupEnd();
 				}
@@ -503,31 +505,42 @@ assign(Compute.prototype, {
 	//!steal-remove-end
 });
 
+var hasDependencies = function(){
+	return this.observation && this.observation.hasDependencies();
+};
+Object.defineProperty(Compute.prototype,"hasDependencies",{
+	get: hasDependencies
+});
+canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
+
+
+
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
 Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
 
-var k = function(){};
-// A list of temporarily bound computes
-var computes;
-// Unbinds all temporarily bound computes.
-var unbindComputes = function () {
-	for (var i = 0, len = computes.length; i < len; i++) {
-		computes[i].removeEventListener('change', k);
-	}
-	computes = null;
-};
+
+
+
+canReflect.set(Compute.prototype, canSymbol.for("can.onValue"), function(handler){
+	var translationHandler = function(ev, newValue){
+		handler(newValue);
+	};
+	singleReference.set(handler, this, translationHandler);
+
+	this.addEventListener("change", translationHandler);
+});
+
+canReflect.set(Compute.prototype, canSymbol.for("can.offValue"), function(handler){
+	this.removeEventListener("change", singleReference.getAndDelete(handler, this) );
+});
+
+canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), Compute.prototype.get);
+canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
+
 
 // ### temporarilyBind
 // Binds computes for a moment to cache their value and prevent re-calculating it.
-Compute.temporarilyBind = function (compute) {
-	var computeInstance = compute.computeInstance || compute;
-	computeInstance.addEventListener('change', k);
-	if (!computes) {
-		computes = [];
-		setImmediate(unbindComputes);
-	}
-	computes.push(computeInstance);
-};
+Compute.temporarilyBind = Observation.temporarilyBind;
 
 // ### async
 // A simple helper that makes an async compute a bit easier.
@@ -551,5 +564,24 @@ Compute.truthy = function(compute) {
 		return !!res;
 	});
 };
+
+canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
+canReflect.set(Compute.prototype, canSymbol.for("can.isValueLike"), true);
+canReflect.set(Compute.prototype, canSymbol.for("can.isMapLike"), false);
+canReflect.set(Compute.prototype, canSymbol.for("can.isListLike"), false);
+
+canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
+	return !!this.observation;
+});
+canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
+	var ret;
+	if(this.observation) {
+		ret = {
+			valueDependencies: new CIDSet()
+		};
+		ret.valueDependencies.add(this.observation);
+	}
+	return ret;
+});
 
 module.exports = exports = Compute;

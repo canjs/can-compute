@@ -60,3 +60,38 @@ QUnit.asyncTest('async can immediately read', 4, function () {
 	QUnit.equal( fullName(),  "Payal Shah");
 	QUnit.ok(firedEvents, "fired events");
 });
+
+test("setting compute.async with a observable dependency gets a new value and can re-compute", 4, function(){
+	// this is needed for define with a set and get.
+	var c = compute(1);
+	var add;
+
+	var async = compute.async(1, function(curVal){
+		add = curVal;
+		return c()+add;
+	});
+
+
+	equal( async(), 2, "can read unbound");
+
+	async.bind("change", function(ev, newVal, oldVal){
+		equal(newVal, 3, "change new val");
+		equal(oldVal, 2, "change old val");
+	});
+
+
+	async(2);
+
+	equal( async(), 3, "can read unbound");
+});
+
+test('compute.async getter has correct when length === 1', function(){
+	var m = {};
+
+	var getterCompute = compute.async(false, function (singleArg) {
+		equal(this, m, 'getter has the right context');
+	}, m);
+
+	getterCompute.bind('change', function(){});
+});
+

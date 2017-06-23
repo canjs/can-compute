@@ -1,6 +1,6 @@
 {
   "name": "can-compute",
-  "version": "3.0.11",
+  "version": "3.1.0-pre.17",
   "description": "compose observables",
   "homepage": "http://canjs.com",
   "author": {
@@ -11,17 +11,17 @@
   "scripts": {
     "preversion": "npm test && npm run build",
     "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
-    "postversion": "git push --tags && git checkout master && git branch -D release && git push",
+    "postversion": "git push --tags && git checkout can-reflect && git branch -D release && git push origin can-reflect",
     "testee": "testee test.html --browsers firefox",
     "test": "npm run jshint && npm run testee",
     "jshint": "jshint *.js --config",
+    "release:pre": "npm version prerelease && npm publish --tag pre",
     "release:patch": "npm version patch && npm publish",
     "release:minor": "npm version minor && npm publish",
     "release:major": "npm version major && npm publish",
     "build": "node build.js",
     "document": "bit-docs",
-    "develop": "done-serve --static --develop --port 8080",
-    "release:pre": "npm version prerelease && npm publish"
+    "develop": "done-serve --static --develop --port 8080"
   },
   "main": "can-compute",
   "keywords": [
@@ -30,16 +30,18 @@
     "donejs"
   ],
   "dependencies": {
-    "can-cid": "^1.0.0",
-    "can-event": "^3.3.0",
+    "can-cid": "^1.0.3",
+    "can-event": "^3.5.0-pre.2",
     "can-namespace": "1.0.0",
-    "can-observation": "^3.0.1",
-    "can-types": "^1.0.1",
-    "can-util": "^3.2.2"
+    "can-observation": "^3.2.0-pre.15",
+    "can-reflect": "^1.0.0-pre.2",
+    "can-symbol": "^1.0.0-pre.0",
+    "can-types": "^1.1.0-pre.1",
+    "can-util": "^3.9.0-pre.4"
   },
   "devDependencies": {
     "bit-docs": "0.0.7",
-    "can-define": "^1.0.1",
+    "can-define": "^1.2.0-pre.6",
     "done-serve": "^0.2.5",
     "donejs-cli": "^0.9.5",
     "generator-donejs": "^1.0.4",
