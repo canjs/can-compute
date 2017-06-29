@@ -4,7 +4,6 @@ var Compute = require('can-compute/proto-compute');
 var canBatch = require('can-event/batch/');
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
-var DefineMap = require("can-define/map/map");
 
 QUnit.module('can/Compute');
 
@@ -421,30 +420,8 @@ QUnit.test("can-reflect setValue", function(){
 	QUnit.equal(a.get(), "A", "compute");
 });
 
-QUnit.test("can-reflect getValueDependencies", function() { 
-	var a = new Compute("a");
-	var b, c, m;
 
-	var aDeps = canReflect.getValueDependencies(a);
-	QUnit.equal(aDeps, undefined, "No dependencies before binding");
-	b = new Compute(function() {
-		return a.get();
-	});
-	b.on("change", function() {});
-	ok(canReflect.getValueDependencies(b).valueDependencies, "dependencies exist");
-	ok(canReflect.getValueDependencies(b).valueDependencies.has(b.observation), "value dependencies returned");
-
-	m = new DefineMap({ foo: "bar" });
-	c = new Compute(function() {
-		return m.foo + "baz";
-	});
-	c.on("change", function() {});
-	ok(canReflect.getValueDependencies(c).valueDependencies, "dependencies exist");
-	ok(canReflect.getValueDependencies(c).valueDependencies.has(c.observation), "value dependencies returned");	
-
-});
-
-QUnit.test("registered symbols", function() { 
+QUnit.test("registered symbols", function() {
 	var a = new Compute("a");
 
 	ok(a[canSymbol.for("can.isValueLike")], "can.isValueLike");
