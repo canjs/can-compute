@@ -36,7 +36,7 @@ var Observation = require('can-observation');
 var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/lifecycle');
 require('can-event/batch/batch');
-var observeReader = require('can-observation/reader/reader');
+var observeReader = require('can-stache-key');
 var getObject = require('can-util/js/get/get');
 
 var CID = require('can-cid');
