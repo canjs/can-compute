@@ -548,7 +548,7 @@ test("Async getter causes infinite loop (#28)", function(){
 
 		setTimeout(function(){
 			resolve(changeCount + '|' + id);
-		});
+		},1);
 
 		resolve(changeCount + '|' + id);
 	}, null);
@@ -562,10 +562,15 @@ test("Async getter causes infinite loop (#28)", function(){
 		idCompute(2);
 	}, 50);
 
-	setTimeout(function() {
-		equal(changeCount, 4);
-		start();
-	}, 100);
+	var checkChangeCount = function(){
+		if(changeCount === 4) {
+			equal(changeCount, 4);
+			start();
+		} else {
+			setTimeout(checkChangeCount, 10);
+		}
+	};
+	checkChangeCount();
 });
 
 test("Listening to input change", function(){
@@ -638,7 +643,7 @@ QUnit.test("can-reflect valueHasDependencies", function(){
 
 });
 
-QUnit.test("registered symbols", function() { 
+QUnit.test("registered symbols", function() {
 	var a = compute("a");
 
 	ok(a[canSymbol.for("can.isValueLike")], "can.isValueLike");
