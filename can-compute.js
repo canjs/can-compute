@@ -18,33 +18,58 @@ require('can-event/batch/batch');
 var Compute = require('./proto-compute');
 var CID = require('can-cid');
 var namespace = require('can-namespace');
+var singleReference = require("can-util/js/single-reference/single-reference");
+
+var canReflect = require('can-reflect/reflections/get-set/get-set');
+var canSymbol = require('can-symbol');
+var canOnValueSymbol = canSymbol.for("can.onValue"),
+	canOffValueSymbol = canSymbol.for("can.offValue"),
+	canGetValue = canSymbol.for("can.getValue"),
+	canSetValue = canSymbol.for("can.setValue"),
+	isValueLike = canSymbol.for("can.isValueLike"),
+	isMapLike = canSymbol.for("can.isMapLike"),
+	isListLike = canSymbol.for("can.isListLike"),
+	isFunctionLike = canSymbol.for("can.isFunctionLike"),
+	canValueHasDependencies = canSymbol.for("can.valueHasDependencies"),
+	canGetValueDependencies = canSymbol.for("can.getValueDependencies");
 
 // The `can.compute` generator function.
-
-
 var addEventListener = function(ev, handler){
 	var compute = this;
-	var computeHandler = handler && handler[compute.handlerKey];
-	if(handler && !computeHandler) {
-		computeHandler = handler[compute.handlerKey] = function() {
-			handler.apply(compute, arguments);
-		};
+	var translationHandler;
+	if(handler){
+		translationHandler = function() {
+		   handler.apply(compute, arguments);
+	   };
+	   singleReference.set(handler, this, translationHandler);
 	}
-
-	return compute.computeInstance.addEventListener(ev, computeHandler);
+	return compute.computeInstance.addEventListener(ev, translationHandler);
 };
 
 var removeEventListener = function(ev, handler){
-	var compute = this;
-
-	var computeHandler = handler && handler[compute.handlerKey];
-
-	if(computeHandler) {
-		delete handler[compute.handlerKey];
-		return compute.computeInstance.removeEventListener(ev, computeHandler);
-	}
-	return compute.computeInstance.removeEventListener.apply(compute.computeInstance, arguments);
+	return this.computeInstance.removeEventListener(
+		ev,
+		handler && singleReference.getAndDelete(handler, this)
+	);
 };
+var onValue = function(handler){
+		return this.computeInstance[canOnValueSymbol](handler);
+	},
+	offValue = function(handler){
+		return this.computeInstance[canOffValueSymbol](handler);
+	},
+	getValue = function(){
+		return this.computeInstance.get();
+	},
+	setValue = function(value){
+		return this.computeInstance.set(value);
+	},
+	hasDependencies = function(){
+		return this.computeInstance.hasDependencies;
+	},
+	getDependencies = function() {
+		return this.computeInstance[canGetValueDependencies]();
+	};
 
 
 var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
@@ -74,6 +99,17 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 		return COMPUTE(getterSetter, context, ctx, bindOnce);
 	};
 
+	// forward on and off to the computeInstance as this doesn't matter
+	canReflect.set(compute, canOnValueSymbol, onValue);
+	canReflect.set(compute, canOffValueSymbol, offValue);
+	canReflect.set(compute, canGetValue, getValue);
+	canReflect.set(compute, canSetValue, setValue);
+	canReflect.set(compute, isValueLike, true);
+	canReflect.set(compute, isMapLike, false);
+	canReflect.set(compute, isListLike, false);
+	canReflect.set(compute, isFunctionLike, false);
+	canReflect.set(compute, canValueHasDependencies, hasDependencies);
+	canReflect.set(compute, canGetValueDependencies, getDependencies);
 	return compute;
 };
 
