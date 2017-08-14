@@ -477,7 +477,7 @@ assign(Compute.prototype, {
 			if(trace.dependencies && trace.dependencies.length) {
 				currentTrace = trace.cid + " = " + trace.computeValue;
 
-				if(console && console.group) {
+				if(typeof console !== 'undefined' && console.group) {
 					console.group(currentTrace);
 				} else {
 					canLog.log(currentTrace);
@@ -491,7 +491,7 @@ assign(Compute.prototype, {
 					}
 				});
 
-				if(console && console.groupEnd) {
+				if(typeof console !== 'undefined' && console.groupEnd) {
 					console.groupEnd();
 				}
 			} else {
