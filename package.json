@@ -44,7 +44,7 @@
     "jshint": "^2.9.1",
     "steal": "^1.2.8",
     "steal-qunit": "^1.0.1",
-    "steal-tools": "^1.1.2",
+    "steal-tools": "^1.7.2",
     "testee": "^0.7.0"
   },
   "repository": {
