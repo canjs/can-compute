@@ -6,7 +6,6 @@ var QUnit = require('steal-qunit');
 var canBatch = require('can-event/batch/');
 var Observation = require('can-observation');
 var domDispatch = require("can-util/dom/dispatch/dispatch");
-var isEmptyObject = require("can-util/js/is-empty-object/is-empty-object")
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 //require('./read_test');
@@ -672,7 +671,7 @@ QUnit.test("can-reflect setValue", function(){
 
 QUnit.test("Calling .unbind() with no arguments should tear down all event handlers", function () {
 	var count = compute(0);
-  count.on('change', function() {
+	count.on('change', function() {
 		console.log('Count changed');
 	});
 	QUnit.equal(count.computeInstance.__bindEvents.change.length, 1, "Change event added");
