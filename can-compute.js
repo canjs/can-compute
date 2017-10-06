@@ -47,10 +47,14 @@ var addEventListener = function(ev, handler){
 };
 
 var removeEventListener = function(ev, handler){
-	return this.computeInstance.removeEventListener(
-		ev,
-		handler && singleReference.getAndDelete(handler, this)
-	);
+		var args = [];
+		if (typeof ev !== 'undefined') {
+			args.push(ev);
+			if (typeof handler !== 'undefined') {
+				args.push(handler);
+			}
+		}
+		return this.computeInstance.removeEventListener.apply(this.computeInstance, args);
 };
 var onValue = function(handler){
 		return this.computeInstance[canOnValueSymbol](handler);

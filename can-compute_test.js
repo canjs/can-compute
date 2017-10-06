@@ -668,3 +668,13 @@ QUnit.test("can-reflect setValue", function(){
 	canReflect.setValue(a, "A");
 	QUnit.equal(a(), "A", "compute");
 });
+
+QUnit.test("Calling .unbind() with no arguments should tear down all event handlers", function () {
+	var count = compute(0);
+	count.on('change', function() {
+		console.log('Count changed');
+	});
+	QUnit.equal(count.computeInstance.__bindEvents.change.length, 1, "Change event added");
+	count.unbind();
+	QUnit.equal(count.computeInstance.__bindEvents.change.length, 0, "All events for compute removed");
+});
