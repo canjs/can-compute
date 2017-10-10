@@ -29,6 +29,7 @@ var canOnValueSymbol = canSymbol.for("can.onValue"),
 	isValueLike = canSymbol.for("can.isValueLike"),
 	isMapLike = canSymbol.for("can.isMapLike"),
 	isListLike = canSymbol.for("can.isListLike"),
+	canGetNameSymbol = canSymbol.for("can.getName"),
 	isFunctionLike = canSymbol.for("can.isFunctionLike"),
 	canValueHasDependencies = canSymbol.for("can.valueHasDependencies"),
 	canGetValueDependencies = canSymbol.for("can.getValueDependencies");
@@ -73,6 +74,9 @@ var onValue = function(handler){
 	},
 	getDependencies = function() {
 		return this.computeInstance[canGetValueDependencies]();
+	},
+	getName = function() {
+		return "Compute<" + this._cid +  ">";
 	};
 
 
@@ -114,6 +118,7 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 	canReflect.set(compute, isFunctionLike, false);
 	canReflect.set(compute, canValueHasDependencies, hasDependencies);
 	canReflect.set(compute, canGetValueDependencies, getDependencies);
+	canReflect.set(compute, canGetNameSymbol, getName);
 	return compute;
 };
 

@@ -678,3 +678,11 @@ QUnit.test("Calling .unbind() with no arguments should tear down all event handl
 	count.unbind();
 	QUnit.equal(count.computeInstance.__bindEvents.change.length, 0, "All events for compute removed");
 });
+
+QUnit.test("can.getName symbol behavior", function(assert) {
+	var count = compute(0);
+	var name = count[canSymbol.for("can.getName")]();
+
+	assert.ok(/Compute/.test(name), "should use the constructor name");
+	assert.ok(/<compute\d+>/.test(name), "should print cid in angle brackets");
+});
