@@ -51,7 +51,7 @@ var removeEventListener = function(ev, handler){
 		if (typeof ev !== 'undefined') {
 			args.push(ev);
 			if (typeof handler !== 'undefined') {
-				args.push(handler);
+				args.push(singleReference.getAndDelete(handler, this));
 			}
 		}
 		return this.computeInstance.removeEventListener.apply(this.computeInstance, args);
