@@ -76,7 +76,7 @@ var onValue = function(handler){
 		return this.computeInstance[canGetValueDependencies]();
 	},
 	getName = function() {
-		return "Compute<" + this._cid +  ">";
+		return "Compute<" + CID(this) +  ">";
 	};
 
 
