@@ -20,7 +20,7 @@ var CID = require('can-cid');
 var namespace = require('can-namespace');
 var singleReference = require("can-util/js/single-reference/single-reference");
 
-var canReflect = require('can-reflect/reflections/get-set/get-set');
+var canReflect = require('can-reflect');
 var canSymbol = require('can-symbol');
 var canOnValueSymbol = canSymbol.for("can.onValue"),
 	canOffValueSymbol = canSymbol.for("can.offValue"),
@@ -76,7 +76,9 @@ var onValue = function(handler){
 		return this.computeInstance[canGetValueDependencies]();
 	},
 	getName = function() {
-		return "Compute<" + CID(this) +  ">";
+		/* jshint ignore:start */
+		return canReflect.getName(COMPUTE) + "<" + CID(this) +  ">";
+		/* jshint ignore:end */
 	};
 
 
@@ -119,8 +121,19 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 	canReflect.set(compute, canValueHasDependencies, hasDependencies);
 	canReflect.set(compute, canGetValueDependencies, getDependencies);
 	canReflect.set(compute, canGetNameSymbol, getName);
+
+	//!steal-remove-start
+	canReflect.setName(compute, getName);
+	//!steal-remove-end
+
 	return compute;
 };
+
+//!steal-remove-start
+canReflect.setName(COMPUTE, function() {
+	return "Compute";
+});
+//!steal-remove-end
 
 // ## Helpers
 
