@@ -1,9 +1,7 @@
-require("./can-compute-async-test");
-require("./proto-compute_test");
+
 
 var compute = require('can-compute');
 var QUnit = require('steal-qunit');
-var canBatch = require('can-event/batch/');
 var Observation = require('can-observation');
 var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");

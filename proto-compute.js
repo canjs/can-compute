@@ -33,9 +33,7 @@
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
-var canEvent = require('can-event');
 var eventLifecycle = require('can-event/lifecycle/lifecycle');
-require('can-event/batch/batch');
 var observeReader = require('can-stache-key');
 var getObject = require('can-util/js/get/get');
 
