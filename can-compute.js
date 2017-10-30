@@ -13,15 +13,13 @@
 
 
 
+var Compute = require('./proto-compute');
 var CID = require('can-cid');
 var namespace = require('can-namespace');
 var singleReference = require("can-util/js/single-reference/single-reference");
 
 var canReflect = require('can-reflect/reflections/get-set/get-set');
 var canSymbol = require('can-symbol');
-var makeCompute = require("./make-compute");
-
-
 var canOnValueSymbol = canSymbol.for("can.onValue"),
 	canOffValueSymbol = canSymbol.for("can.offValue"),
 	canGetValue = canSymbol.for("can.getValue"),
@@ -51,16 +49,16 @@ var removeEventListener = function(ev, handler){
 		if (typeof ev !== 'undefined') {
 			args.push(ev);
 			if (typeof handler !== 'undefined') {
-				args.push(handler);
+				args.push(singleReference.getAndDelete(handler, this));
 			}
 		}
 		return this.computeInstance.removeEventListener.apply(this.computeInstance, args);
 };
-var onValue = function(handler){
-		return this.computeInstance[canOnValueSymbol](handler);
+var onValue = function(handler, queue){
+		return this.computeInstance[canOnValueSymbol](handler, queue);
 	},
-	offValue = function(handler){
-		return this.computeInstance[canOffValueSymbol](handler);
+	offValue = function(handler, queue){
+		return this.computeInstance[canOffValueSymbol](handler, queue);
 	},
 	getValue = function(){
 		return this.computeInstance.get();
@@ -75,54 +73,45 @@ var onValue = function(handler){
 		return this.computeInstance[canGetValueDependencies]();
 	};
 
-var SimpleObservable = require("can-simple-observable");
-var AsyncObservable = require("can-simple-observable/async/async");
-var SetterObservable = require("can-simple-observable/setter/setter");
-var SettableObservable = require("can-simple-observable/settable/settable");
+
 var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
-	var args = [];
 
-	for(var i = 0, arglen = arguments.length; i < arglen; i++) {
-		args[i] = arguments[i];
-	}
-
-	var contextType = typeof args[1];
-
-	if (typeof args[0] === 'function') {
-		// Getter/Setter functional computes.
-		// `new can.Compute(function(){ ... })`
-		var fn = args[0].bind(args[1]);
-		return makeCompute(new SetterObservable(fn) );
-	} else if (args[1] !== undefined) {
-		if (contextType === 'string' || contextType === 'number') {
-			// Property computes.
-			// `new can.Compute(object, propertyName[, eventName])`
-			return makeCompute(new PropertyObservable(args[0], args[1], args[2]));
-
-		} else if(contextType === 'function') {
-			// Setter computes.
-			// `new can.Compute(initialValue, function(newValue){ ... })`
-			return makeCompute(new SettableObservable(args[0], args[1].bind(args[2]));
-		} else {
-
-			if(args[1] && args[1].fn) {
-				// Async computes.
-				this._setupAsyncCompute(args[0], args[1]);
-			} else {
-				// Settings computes.
-				//`new can.Compute(initialValue, {on, off, get, set})`
-				// this._setupSettings(args[0], args[1]);
-				throw new Error("Settings based computes are no longer supported. Implement onValue, offValue, getValue and setValue yourself");
-			}
-
+	function compute(val) {
+		if(arguments.length) {
+			return compute.computeInstance.set(val);
 		}
-	} else {
-		// Simple value computes.
-		// `new can.Compute(initialValue)`
-		return new SimpleObservable(args[0])
+
+		return compute.computeInstance.get();
 	}
+	var cid = CID(compute, 'compute');
 
+	// Create an internal `can.Compute`.
+	compute.computeInstance = new Compute(getterSetter, context, eventName, bindOnce);
 
+	compute.handlerKey = '__handler' + cid;
+	compute.on = compute.bind = compute.addEventListener = addEventListener;
+	compute.off = compute.unbind = compute.removeEventListener = removeEventListener;
+
+	compute.isComputed = compute.computeInstance.isComputed;
+
+	compute.clone = function(ctx) {
+		if(typeof getterSetter === 'function') {
+			context = ctx;
+		}
+		return COMPUTE(getterSetter, context, ctx, bindOnce);
+	};
+
+	// forward on and off to the computeInstance as this doesn't matter
+	canReflect.set(compute, canOnValueSymbol, onValue);
+	canReflect.set(compute, canOffValueSymbol, offValue);
+	canReflect.set(compute, canGetValue, getValue);
+	canReflect.set(compute, canSetValue, setValue);
+	canReflect.set(compute, isValueLike, true);
+	canReflect.set(compute, isMapLike, false);
+	canReflect.set(compute, isListLike, false);
+	canReflect.set(compute, isFunctionLike, false);
+	canReflect.set(compute, canValueHasDependencies, hasDependencies);
+	canReflect.set(compute, canGetValueDependencies, getDependencies);
 	return compute;
 };
 

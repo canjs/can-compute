@@ -1,12 +1,14 @@
-
-
 var compute = require('can-compute');
 var QUnit = require('steal-qunit');
 var Observation = require('can-observation');
 var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
-//require('./read_test');
+var eventQueue = require("can-event-queue");
+var queues = require("can-queues");
+queues.log();
+
+var metaSymbol = canSymbol.for("can.meta");
 
 QUnit.module('can/compute');
 test('single value compute', function () {
@@ -31,8 +33,9 @@ test('inner computes values are not bound to', function () {
 	// We do a timeout because we temporarily bind on num so that we can use its cached value.
 	stop();
 	setTimeout(function () {
-		equal(num.computeInstance.__bindEvents._lifecycleBindings, 1, 'inner compute only bound once');
-		equal(outer.computeInstance.__bindEvents._lifecycleBindings, 1, 'outer compute only bound once');
+
+		equal(num.computeInstance[metaSymbol].handlers.get([]).length, 1, 'inner compute only bound once');
+		equal(outer.computeInstance[metaSymbol].handlers.get([]).length, 1, 'outer compute only bound once');
 		start();
 	}, 50);
 });
@@ -130,12 +133,12 @@ test('compute updated method uses get and old value (#732)', function () {
 	equal(input.value, 2, 'updated input.value');
 
 
-
-	value.bind('change', function (ev, newVal, oldVal) {
+	function handler(ev, newVal, oldVal) {
 		equal(newVal, 3, 'newVal');
 		equal(oldVal, 2, 'oldVal');
-		value.unbind('change', this.Constructor);
-	});
+		value.unbind('change',handler);
+	}
+	value.bind('change', handler);
 	ok(input.onchange, 'binding to onchange');
 
 
@@ -151,19 +154,19 @@ test("a compute updated by source changes within a batch is part of that batch",
 	var computeA = compute("a");
 	var computeB = compute("b");
 
-	var combined1 = compute(function(){
+	var combined1 = compute(function combined1(){
 
 		return computeA()+" "+computeB();
 
 	});
 
-	var combined2 = compute(function(){
+	var combined2 = compute(function combined2(){
 
 		return computeA()+" "+computeB();
 
 	});
 
-	var combo = compute(function(){
+	var combo = compute(function combo(){
 		return combined1()+" "+combined2();
 	});
 
@@ -177,10 +180,10 @@ test("a compute updated by source changes within a batch is part of that batch",
 		callbacks++;
 	});
 
-	canBatch.start();
+	eventQueue.start();
 	computeA("A");
 	computeB("B");
-	canBatch.stop();
+	eventQueue.stop();
 });
 
 test("compute.async can be like a normal getter", function(){
@@ -309,9 +312,9 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 
 
 
-	canBatch.start();
+	eventQueue.start();
 	root('b');
-	canBatch.stop();
+	eventQueue.stop();
 
 	equal(combined(), true);
 	//equal(other(), 2);
@@ -391,9 +394,9 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 		canLog.log("grandChild change", ev.batchNum)
 	});*/
 
-	canBatch.start();
+	eventQueue.start();
 	root('b');
-	canBatch.stop();
+	eventQueue.stop();
 });
 
 test("bug with nested computes and batch ordering (#1519)", function(){
@@ -421,9 +424,9 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 
 
 
-	canBatch.start();
+	eventQueue.start();
 	root('b');
-	canBatch.stop();
+	eventQueue.stop();
 
 	equal(combined(), true);
 	//equal(other(), 2);
@@ -486,9 +489,9 @@ test("handles missing update order items (#2121)",function(){
 		equal(newVal, "ROOT1root2");
 	});
 
-	canBatch.start();
+	eventQueue.start();
 	root1("ROOT1");
-	canBatch.stop();
+	eventQueue.stop();
 
 });
 
@@ -503,7 +506,7 @@ test("compute should not fire event when NaN is set multiple times #2128", funct
 	c(NaN);
 });
 
-test("canBatch.afterPreviousEvents firing too late (#2198)", function(){
+test("eventQueue.afterPreviousEvents firing too late (#2198)", function(){
 
 
 	var compute1 = compute("a"),
@@ -520,20 +523,20 @@ test("canBatch.afterPreviousEvents firing too late (#2198)", function(){
 			ok(afterPrevious, "after previous should have fired so we would respond to this event");
 		});
 
-		canBatch.start();
-		canBatch.stop();
+		eventQueue.start();
+		eventQueue.stop();
 
 		// we should get this callback before we are notified of the change
-		canBatch.afterPreviousEvents(function() {
+		eventQueue.afterPreviousEvents(function() {
 			afterPrevious = true;
 		});
 
 		compute2("c");
 	});
 
-	canBatch.start();
+	eventQueue.start();
 	compute1("x");
-	canBatch.stop();
+	eventQueue.stop();
 });
 
 test("Async getter causes infinite loop (#28)", function(){
@@ -672,7 +675,9 @@ QUnit.test("Calling .unbind() with no arguments should tear down all event handl
 	count.on('change', function() {
 		console.log('Count changed');
 	});
-	QUnit.equal(count.computeInstance.__bindEvents.change.length, 1, "Change event added");
+	var handlers = count.computeInstance[canSymbol.for("can.meta")].handlers;
+
+	QUnit.equal(handlers.get(["change"]).length, 1, "Change event added");
 	count.unbind();
-	QUnit.equal(count.computeInstance.__bindEvents.change.length, 0, "All events for compute removed");
+	QUnit.equal(handlers.get(["change"]).length, 0, "All events for compute removed");
 });
