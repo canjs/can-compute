@@ -1,7 +1,7 @@
 {
   "name": "can-compute",
-  "version": "3.3.4",
-  "description": "compose observables",
+  "version": "4.0.0-pre.0",
+  "description": "CanJS's legacy way of composing observables. Use can-observation instead.",
   "homepage": "http://canjs.com",
   "author": {
     "name": "Bitovi",
@@ -9,9 +9,8 @@
     "url": "http://bitovi.com"
   },
   "scripts": {
-    "preversion": "npm test && npm run build",
-    "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
-    "postversion": "git push --tags && git checkout master && git branch -D release && git push",
+    "preversion": "npm test",
+    "postpublish": "git push --tags && git push",
     "testee": "testee test.html --browsers firefox",
     "test": "npm run detect-cycle && npm run jshint && npm run testee",
     "jshint": "jshint *.js --config",

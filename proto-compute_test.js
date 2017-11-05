@@ -1,9 +1,10 @@
 var QUnit = require('steal-qunit');
 var Compute = require('can-compute/proto-compute');
 
-var canBatch = require('can-event/batch/');
+var queues = require('can-queues');
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
+
 
 QUnit.module('can/Compute');
 
@@ -18,18 +19,7 @@ test('single value compute', function () {
 });
 
 test('inner computes values are not bound to', function () {
-	var num = new Compute(1),
-		numBind = num.addEventListener,
-		numUnbind = num.removeEventListener;
-	var bindCount = 0;
-	num.addEventListener = function() {
-		bindCount++;
-		return numBind.apply(this, arguments);
-	};
-	num.removeEventListener = function() {
-		bindCount--;
-		return numUnbind.apply(this, arguments);
-	};
+	var num = new Compute(1);
 	var outer = new Compute(function() {
 		var inner = new Compute(function() {
 			return num.get() + 1;
@@ -41,7 +31,8 @@ test('inner computes values are not bound to', function () {
 	// We do a timeout because we temporarily bind on num so that we can use its cached value.
 	stop();
 	setTimeout(function() {
-		equal(bindCount, 1, 'compute only bound to once');
+		var handlers = num[canSymbol.for("can.meta")].handlers;
+		equal(handlers.get([]).length, 1, 'compute only bound to once');
 		start();
 	}, 50);
 });
@@ -189,10 +180,10 @@ test('a compute updated by source changes within a batch is part of that batch',
 		callbacks++;
 	});
 
-	canBatch.start();
+	queues.batch.start();
 	computeA.set('A');
 	computeB.set('B');
-	canBatch.stop();
+	queues.batch.stop();
 });
 
 test('Compute.async can be like a normal getter', function() {
@@ -345,10 +336,10 @@ test("Change propagation in a batch with late bindings (#2412)", function(){
 	});
 
 
-	canBatch.start();
+	queues.batch.start();
 	rootA.set('A');
 	rootB.set('B');
-	canBatch.stop();
+	queues.batch.stop();
 
 });
 
@@ -383,10 +374,10 @@ if (Compute.prototype.trace) {
 		equal(out.definition, fn, "got the right function");
 		equal(out.computeValue, "grandChild->b");
 		grandChild.log();
-		canBatch.start();
+		queues.batch.start();
 		rootA.set('A');
 		rootB.set('B');
-		canBatch.stop();
+		queues.batch.stop();
 		grandChild.log();
 
 	});
