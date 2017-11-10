@@ -684,10 +684,16 @@ QUnit.test("Calling .unbind() with no arguments should tear down all event handl
 });
 
 QUnit.test(".off() unbinds a given handler", function () {
-	function handler(){}
-	var c = compute();
+	var handler = function(){};
+	var c = compute('foo');
+
 	c.on('change', handler);
-	QUnit.equal(c.computeInstance.__bindEvents._lifecycleBindings, 1);
+
+	var handlers = c.computeInstance[canSymbol.for("can.meta")].handlers;
+
+	QUnit.equal(handlers.get(['change']).length, 1, 'handler added');
+
 	c.off('change', handler);
-	QUnit.equal(c.computeInstance.__bindEvents._lifecycleBindings, 0);
+
+	QUnit.equal(handlers.get(['change']).length, 0, 'hander removed');
 });
