@@ -33,7 +33,7 @@
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
-var eventQueue = require('can-event-queue');
+var eventQueue = require('can-event-queue/map/legacy/legacy');
 var observeReader = require('can-stache-key');
 var getObject = require('can-util/js/get/get');
 
