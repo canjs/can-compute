@@ -1,7 +1,7 @@
 require("./proto-compute_test");
 var compute = require('can-compute');
 var QUnit = require('steal-qunit');
-var Observation = require('can-observation');
+var ObservationRecorder = require("can-observation-recorder");
 var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
@@ -453,7 +453,7 @@ test("binding, unbinding, and rebinding works after a timeout (#2095)", function
 
 });
 
-test("Observation.isRecording observes doesn't understand Observation.ignore (#2099)", function(){
+test("ObservationRecorder.isRecording observes doesn't understand ObservationRecorder.ignore (#2099)", function(){
 	expect(0);
 	var c = compute(1);
 	c.computeInstance.bind = function() {
@@ -461,7 +461,7 @@ test("Observation.isRecording observes doesn't understand Observation.ignore (#2
 	};
 
 	var outer = compute(function(){
-		Observation.ignore(function(){
+		ObservationRecorder.ignore(function(){
 			c();
 		})();
 	});

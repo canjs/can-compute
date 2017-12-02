@@ -32,6 +32,7 @@
     "can-event-queue": "<2.0.0",
     "can-namespace": "1.0.0",
     "can-observation": "^4.0.0-pre.22",
+    "can-observation-recorder": "<2.0.0",
     "can-reflect": "^1.6.1",
     "can-simple-observable": "^2.0.0-pre.23",
     "can-stache-key": "^1.0.0-pre.14",

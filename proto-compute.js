@@ -33,6 +33,7 @@
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
+var ObservationRecorder = require("can-observation-recorder");
 var eventQueue = require('can-event-queue/map/legacy/legacy');
 var observeReader = require('can-stache-key');
 var getObject = require('can-util/js/get/get');
@@ -293,7 +294,7 @@ assign(Compute.prototype, {
 			// that should update the value of the compute (`setValue`). To make this we need
 			// the "normal" updater function because we are about to overwrite it.
 			var oldUpdater = this.updater,
-				resolve = Observation.ignore(function(newVal) {
+				resolve = ObservationRecorder.ignore(function(newVal) {
 					oldUpdater.call(self, newVal, self.value);
 				});
 
@@ -324,7 +325,7 @@ assign(Compute.prototype, {
 	// When a compute is first bound, call the internal `this._on` method.
 	// `can.__notObserve` makes sure if `_on` is listening to any observables,
 	// they will not be observed by any outer compute.
-	_eventSetup: Observation.ignore(function () {
+	_eventSetup: ObservationRecorder.ignore(function () {
 		this.bound = true;
 		this._on(this.updater);
 	}),
@@ -357,11 +358,11 @@ assign(Compute.prototype, {
 	get: function() {
 		// If an external compute is tracking observables and
 		// this compute can be listened to by "function" based computes ....
-		var recordingObservation = Observation.isRecording();
+		var recordingObservation = ObservationRecorder.isRecording();
 		if(recordingObservation && this._canObserve !== false) {
 
 			// ... tell the tracking compute to listen to change on this computed.
-			Observation.add(this, 'change');
+			ObservationRecorder.add(this, 'change');
 			// ... if we are not bound, we should bind so that
 			// we don't have to re-read to get the value of this compute.
 			if (!this.bound) {
