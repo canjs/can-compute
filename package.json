@@ -1,6 +1,6 @@
 {
   "name": "can-compute",
-  "version": "4.0.0-pre.7",
+  "version": "4.0.0-pre.8",
   "description": "CanJS’s legacy way of composing observables. Use can-observation instead.",
   "homepage": "http://canjs.com",
   "author": {
