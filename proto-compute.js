@@ -34,7 +34,7 @@
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
 var ObservationRecorder = require("can-observation-recorder");
-var eventQueue = require('can-event-queue/map/legacy/legacy');
+var eventQueue = require('can-event-queue/map/map');
 var observeReader = require('can-stache-key');
 var getObject = require('can-util/js/get/get');
 

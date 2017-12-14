@@ -5,7 +5,7 @@ var ObservationRecorder = require("can-observation-recorder");
 var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
-var eventQueue = require("can-event-queue/map/legacy/legacy");
+var eventQueue = require("can-event-queue/map/map");
 var queues = require("can-queues");
 
 var metaSymbol = canSymbol.for("can.meta");
