@@ -14,7 +14,6 @@
 
 
 var Compute = require('./proto-compute');
-var CID = require('can-cid');
 var namespace = require('can-namespace');
 var singleReference = require("can-util/js/single-reference/single-reference");
 
@@ -83,15 +82,12 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 
 		return compute.computeInstance.get();
 	}
-	var cid = CID(compute, 'compute');
 
 	// Create an internal `can.Compute`.
 	compute.computeInstance = new Compute(getterSetter, context, eventName, bindOnce);
 
-	compute.handlerKey = '__handler' + cid;
 	compute.on = compute.bind = compute.addEventListener = addEventListener;
 	compute.off = compute.unbind = compute.removeEventListener = removeEventListener;
-
 	compute.isComputed = compute.computeInstance.isComputed;
 
 	compute.clone = function(ctx) {
