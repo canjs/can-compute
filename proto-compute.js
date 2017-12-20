@@ -34,22 +34,17 @@
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
 var ObservationRecorder = require("can-observation-recorder");
-var eventQueue = require('can-event-queue/map/map');
-var observeReader = require('can-stache-key');
+var eventQueue = require("can-event-queue/map/map");
+var observeReader = require("can-stache-key");
 var getObject = require('can-util/js/get/get');
 
-var CID = require('can-cid');
-var assign = require('can-util/js/assign/assign');
-var canReflect = require('can-reflect');
-var canSymbol = require('can-symbol');
-var CIDSet = require('can-util/js/cid-set/cid-set');
+var assign = require("can-assign");
+var canReflect = require("can-reflect");
 var singleReference = require("can-util/js/single-reference/single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
 var Compute = function(getterSetter, context, eventName, bindOnce) {
-	CID(this, 'compute');
-
 	var args = [];
 
 	for(var i = 0, arglen = arguments.length; i < arglen; i++) {
@@ -445,42 +440,15 @@ assign(Compute.prototype, {
 	}
 });
 
-var hasDependencies = function(){
-	return this.observation && this.observation.hasDependencies();
-};
-Object.defineProperty(Compute.prototype,"hasDependencies",{
-	get: hasDependencies
-});
-canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
-
-
-
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
 Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
 
-
-
-
-canReflect.set(Compute.prototype, canSymbol.for("can.onValue"), function(handler, queue){
-	function translationHandler(ev, newValue){
-		handler(newValue);
-	}
-	singleReference.set(handler, this, translationHandler);
-	//!steal-remove-start
-	Object.defineProperty(translationHandler,"name",{
-		value: canReflect.getName(handler) + "::onValue",
-	});
-	//!steal-remove-end
-	this.addEventListener("change", translationHandler, queue);
+var hasDependencies = function hasDependencies() {
+	return this.observation && this.observation.hasDependencies();
+};
+Object.defineProperty(Compute.prototype, "hasDependencies", {
+	get: hasDependencies
 });
-
-canReflect.set(Compute.prototype, canSymbol.for("can.offValue"), function(handler, queue){
-	this.removeEventListener("change", singleReference.getAndDelete(handler, this), queue );
-});
-
-canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), Compute.prototype.get);
-canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
-
 
 // ### temporarilyBind
 // Binds computes for a moment to cache their value and prevent re-calculating it.
@@ -495,7 +463,6 @@ Compute.async = function(initialValue, asyncComputer, context){
 	});
 };
 
-
 // ### truthy
 // Wraps a compute with another compute that only changes when
 // the wrapped compute's `truthiness` changes.
@@ -509,23 +476,43 @@ Compute.truthy = function(compute) {
 	});
 };
 
-canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
-canReflect.set(Compute.prototype, canSymbol.for("can.isValueLike"), true);
-canReflect.set(Compute.prototype, canSymbol.for("can.isMapLike"), false);
-canReflect.set(Compute.prototype, canSymbol.for("can.isListLike"), false);
+canReflect.assignSymbols(Compute.prototype, {
+	"can.isValueLike": true,
+	"can.isMapLike": false,
+	"can.isListLike": false,
+	"can.setValue": Compute.prototype.set,
+	"can.getValue": Compute.prototype.get,
+	"can.valueHasDependencies": hasDependencies,
+	"can.onValue": function onValue(handler, queue) {
+		function translationHandler(ev, newValue) {
+			handler(newValue);
+		}
+		singleReference.set(handler, this, translationHandler);
+		//!steal-remove-start
+		Object.defineProperty(translationHandler, "name", {
+			value: canReflect.getName(handler) + "::onValue"
+		});
+		//!steal-remove-end
+		this.addEventListener("change", translationHandler, queue);
+	},
+	"can.offValue": function offValue(handler, queue) {
+		this.removeEventListener(
+			"change",
+			singleReference.getAndDelete(handler, this),
+			queue
+		);
+	},
+	"can.getValueDependencies": function getValueDependencies() {
+		var ret;
 
-canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
-	return !!this.observation;
-});
-canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
-	var ret;
-	if(this.observation) {
-		ret = {
-			valueDependencies: new CIDSet()
-		};
-		ret.valueDependencies.add(this.observation);
+		if (this.observation) {
+			ret = {
+				valueDependencies: new Set([this.observation])
+			};
+		}
+
+		return ret;
 	}
-	return ret;
 });
 
 module.exports = exports = Compute;
