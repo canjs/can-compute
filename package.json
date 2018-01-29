@@ -1,7 +1,7 @@
 {
   "name": "can-compute",
-  "version": "3.3.10",
-  "description": "compose observables",
+  "version": "4.0.0-pre.9",
+  "description": "CanJS’s legacy way of composing observables. Use can-observation instead.",
   "homepage": "http://canjs.com",
   "author": {
     "name": "Bitovi",
@@ -9,9 +9,8 @@
     "url": "http://bitovi.com"
   },
   "scripts": {
-    "preversion": "npm test && npm run build",
-    "version": "git commit -am \"Update dist for release\" && git checkout -b release && git add -f dist/",
-    "postversion": "git push --tags && git checkout master && git branch -D release && git push",
+    "preversion": "npm test",
+    "postpublish": "git push --tags && git push",
     "testee": "testee test.html --browsers firefox",
     "test": "npm run detect-cycle && npm run jshint && npm run testee",
     "jshint": "jshint *.js --config",
@@ -30,17 +29,19 @@
     "donejs"
   ],
   "dependencies": {
-    "can-cid": "^1.1.1",
-    "can-event": "^3.7.0",
+    "can-assign": "^1.1.1",
+    "can-event-queue": "^1.0.0",
     "can-namespace": "1.0.0",
-    "can-observation": "^3.3.1",
-    "can-reflect": "^1.2.1",
-    "can-stache-key": "^0.1.0",
+    "can-observation": "^4.0.0",
+    "can-observation-recorder": "^1.0.0",
+    "can-reflect": "^1.6.1",
+    "can-simple-observable": "^2.0.0",
+    "can-stache-key": "^1.0.0",
     "can-symbol": "^1.0.0",
-    "can-types": "^1.1.0",
     "can-util": "^3.9.0"
   },
   "devDependencies": {
+    "can-queues": "^1.0.0",
     "detect-cyclic-packages": "^1.1.0",
     "jshint": "^2.9.1",
     "steal": "^1.2.8",

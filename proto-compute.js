@@ -33,25 +33,18 @@
 // - `_canObserve` - if this compute can be observed.
 // - `hasDependencies` - if this compute has source observable values.
 var Observation = require('can-observation');
-var canEvent = require('can-event');
-var eventLifecycle = require('can-event/lifecycle/lifecycle');
-require('can-event/batch/batch');
-var observeReader = require('can-stache-key');
+var ObservationRecorder = require("can-observation-recorder");
+var eventQueue = require("can-event-queue/map/map");
+var observeReader = require("can-stache-key");
 var getObject = require('can-util/js/get/get');
 
-var CID = require('can-cid');
-var assign = require('can-util/js/assign/assign');
-var canLog = require('can-util/js/log/log');
-var canReflect = require('can-reflect');
-var canSymbol = require('can-symbol');
-var CIDSet = require('can-util/js/cid-set/cid-set');
+var assign = require("can-assign");
+var canReflect = require("can-reflect");
 var singleReference = require("can-util/js/single-reference/single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.
 var Compute = function(getterSetter, context, eventName, bindOnce) {
-	CID(this, 'compute');
-
 	var args = [];
 
 	for(var i = 0, arglen = arguments.length; i < arglen; i++) {
@@ -125,10 +118,9 @@ var Compute = function(getterSetter, context, eventName, bindOnce) {
 var updateOnChange = function(compute, newValue, oldValue, batchNum){
 
 	var valueChanged = newValue !== oldValue && !(newValue !== newValue && oldValue !== oldValue);
-
 	// Only trigger event when value has changed
 	if (valueChanged) {
-		canEvent.dispatch.call(compute, {type: "change", batchNum: batchNum}, [
+		compute.dispatch({type: "change", batchNum: batchNum}, [
 			newValue,
 			oldValue
 		]);
@@ -139,25 +131,30 @@ var updateOnChange = function(compute, newValue, oldValue, batchNum){
 // A helper that creates an `_on` and `_off` function that
 // will bind on source observables and update the value of the compute.
 var setupComputeHandlers = function(compute, func, context) {
-
 	var observation = new Observation(func, context, compute);
+	var updater = compute.updater.bind(compute);
+	//!steal-remove-start
+	Object.defineProperty(updater,"name",{
+		value: canReflect.getName(compute) + ".updater",
+	});
+	//!steal-remove-end
 	compute.observation = observation;
 	return {
 		// Call `onchanged` when any source observables change.
 		_on: function() {
-			observation.start();
+			canReflect.onValue( observation, updater,"notify");
 			compute.value = observation.value;
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
-			observation.stop();
+			canReflect.offValue( observation, updater,"notify");
 		},
 		getDepth: function() {
 			return observation.getDepth();
 		}
 	};
 };
-
+eventQueue(Compute.prototype);
 assign(Compute.prototype, {
 	setPrimaryDepth: function(depth) {
 		this._primaryDepth = depth;
@@ -202,12 +199,12 @@ assign(Compute.prototype, {
 		};
 
 		this._on = function(update) {
-			canEvent.on.call(target, eventName || propertyName, handler);
+			eventQueue.on.call(target, eventName || propertyName, handler);
 			// Set the cached value
 			this.value = this._get();
 		};
 		this._off = function() {
-			return canEvent.off.call( target, eventName || propertyName, handler);
+			return eventQueue.off.call( target, eventName || propertyName, handler);
 		};
 	},
 	// ## Setup Setter Computes
@@ -292,7 +289,7 @@ assign(Compute.prototype, {
 			// that should update the value of the compute (`setValue`). To make this we need
 			// the "normal" updater function because we are about to overwrite it.
 			var oldUpdater = this.updater,
-				resolve = Observation.ignore(function(newVal) {
+				resolve = ObservationRecorder.ignore(function(newVal) {
 					oldUpdater.call(self, newVal, self.value);
 				});
 
@@ -323,7 +320,7 @@ assign(Compute.prototype, {
 	// When a compute is first bound, call the internal `this._on` method.
 	// `can.__notObserve` makes sure if `_on` is listening to any observables,
 	// they will not be observed by any outer compute.
-	_eventSetup: Observation.ignore(function () {
+	_eventSetup: ObservationRecorder.ignore(function () {
 		this.bound = true;
 		this._on(this.updater);
 	}),
@@ -333,10 +330,6 @@ assign(Compute.prototype, {
 		this._off(this.updater);
 		this.bound = false;
 	},
-	// ## bind and unbind
-	// A bind and unbind that calls `_bindsetup` and `_bindteardown`.
-	addEventListener: eventLifecycle.addAndSetup,
-	removeEventListener: eventLifecycle.removeAndTeardown,
 
 	// ## clone
 	// Copies this compute, but for a different context.
@@ -360,11 +353,11 @@ assign(Compute.prototype, {
 	get: function() {
 		// If an external compute is tracking observables and
 		// this compute can be listened to by "function" based computes ....
-		var recordingObservation = Observation.isRecording();
+		var recordingObservation = ObservationRecorder.isRecording();
 		if(recordingObservation && this._canObserve !== false) {
 
 			// ... tell the tracking compute to listen to change on this computed.
-			Observation.add(this, 'change');
+			ObservationRecorder.add(this, 'change');
 			// ... if we are not bound, we should bind so that
 			// we don't have to re-read to get the value of this compute.
 			if (!this.bound) {
@@ -445,98 +438,17 @@ assign(Compute.prototype, {
 
 		return this.get();
 	}
-	//!steal-remove-start
-	,
-	trace: function(){
-		var me = {
-			computeValue: this.get(),
-			definition: this.observation && this.observation.func,
-			cid: this._cid
-		};
-
-
-		if(this.observation) {
-			var deps = [];
-			for(var name in this.observation.newObserved) {
-				var obs = assign({},this.observation.newObserved[name]);
-				if(obs.obj.isComputed) {
-					deps.push(obs.obj.trace());
-
-				} else {
-					deps.push(obs);
-				}
-			}
-			me.dependencies = deps;
-		}
-		return me;
-	},
-	log: function(){
-		var log = function(trace){
-			var currentTrace = '';
-
-			if(trace.dependencies && trace.dependencies.length) {
-				currentTrace = trace.cid + " = " + trace.computeValue;
-
-				if(typeof console !== 'undefined' && console.group) {
-					console.group(currentTrace);
-				} else {
-					canLog.log(currentTrace);
-				}
-
-				trace.dependencies.forEach(function(dep){
-					if(dep.hasOwnProperty("computeValue")) {
-						log(dep);
-					} else {
-						canLog.log(dep.obj, dep.event);
-					}
-				});
-
-				if(typeof console !== 'undefined' && console.groupEnd) {
-					console.groupEnd();
-				}
-			} else {
-				canLog.log(trace.cid +" - "+ trace.computeValue);
-			}
-			return trace;
-		};
-
-		return log(this.trace());
-	}
-	//!steal-remove-end
 });
-
-var hasDependencies = function(){
-	return this.observation && this.observation.hasDependencies();
-};
-Object.defineProperty(Compute.prototype,"hasDependencies",{
-	get: hasDependencies
-});
-canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), hasDependencies);
-
-
 
 Compute.prototype.on = Compute.prototype.bind = Compute.prototype.addEventListener;
 Compute.prototype.off = Compute.prototype.unbind = Compute.prototype.removeEventListener;
 
-
-
-
-canReflect.set(Compute.prototype, canSymbol.for("can.onValue"), function(handler){
-	var translationHandler = function(ev, newValue){
-		handler(newValue);
-	};
-	singleReference.set(handler, this, translationHandler);
-
-	this.addEventListener("change", translationHandler);
+var hasDependencies = function hasDependencies() {
+	return this.observation && this.observation.hasDependencies();
+};
+Object.defineProperty(Compute.prototype, "hasDependencies", {
+	get: hasDependencies
 });
-
-canReflect.set(Compute.prototype, canSymbol.for("can.offValue"), function(handler){
-	this.removeEventListener("change", singleReference.getAndDelete(handler, this) );
-});
-
-canReflect.set(Compute.prototype, canSymbol.for("can.getValue"), Compute.prototype.get);
-canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
-
 
 // ### temporarilyBind
 // Binds computes for a moment to cache their value and prevent re-calculating it.
@@ -551,7 +463,6 @@ Compute.async = function(initialValue, asyncComputer, context){
 	});
 };
 
-
 // ### truthy
 // Wraps a compute with another compute that only changes when
 // the wrapped compute's `truthiness` changes.
@@ -565,23 +476,43 @@ Compute.truthy = function(compute) {
 	});
 };
 
-canReflect.set(Compute.prototype, canSymbol.for("can.setValue"), Compute.prototype.set);
-canReflect.set(Compute.prototype, canSymbol.for("can.isValueLike"), true);
-canReflect.set(Compute.prototype, canSymbol.for("can.isMapLike"), false);
-canReflect.set(Compute.prototype, canSymbol.for("can.isListLike"), false);
+canReflect.assignSymbols(Compute.prototype, {
+	"can.isValueLike": true,
+	"can.isMapLike": false,
+	"can.isListLike": false,
+	"can.setValue": Compute.prototype.set,
+	"can.getValue": Compute.prototype.get,
+	"can.valueHasDependencies": hasDependencies,
+	"can.onValue": function onValue(handler, queue) {
+		function translationHandler(ev, newValue) {
+			handler(newValue);
+		}
+		singleReference.set(handler, this, translationHandler);
+		//!steal-remove-start
+		Object.defineProperty(translationHandler, "name", {
+			value: canReflect.getName(handler) + "::onValue"
+		});
+		//!steal-remove-end
+		this.addEventListener("change", translationHandler, queue);
+	},
+	"can.offValue": function offValue(handler, queue) {
+		this.removeEventListener(
+			"change",
+			singleReference.getAndDelete(handler, this),
+			queue
+		);
+	},
+	"can.getValueDependencies": function getValueDependencies() {
+		var ret;
 
-canReflect.set(Compute.prototype, canSymbol.for("can.valueHasDependencies"), function() {
-	return !!this.observation;
-});
-canReflect.set(Compute.prototype, canSymbol.for("can.getValueDependencies"), function() {
-	var ret;
-	if(this.observation) {
-		ret = {
-			valueDependencies: new CIDSet()
-		};
-		ret.valueDependencies.add(this.observation);
+		if (this.observation) {
+			ret = {
+				valueDependencies: new Set([this.observation])
+			};
+		}
+
+		return ret;
 	}
-	return ret;
 });
 
 module.exports = exports = Compute;

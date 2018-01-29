@@ -12,11 +12,8 @@
 // - [read.js](read.html) provides a helper that read properties and values in an observable way.
 
 
-require('can-event');
-require('can-event/batch/batch');
 
 var Compute = require('./proto-compute');
-var CID = require('can-cid');
 var namespace = require('can-namespace');
 var singleReference = require("can-util/js/single-reference/single-reference");
 
@@ -56,11 +53,11 @@ var removeEventListener = function(ev, handler){
 		}
 		return this.computeInstance.removeEventListener.apply(this.computeInstance, args);
 };
-var onValue = function(handler){
-		return this.computeInstance[canOnValueSymbol](handler);
+var onValue = function(handler, queue){
+		return this.computeInstance[canOnValueSymbol](handler, queue);
 	},
-	offValue = function(handler){
-		return this.computeInstance[canOffValueSymbol](handler);
+	offValue = function(handler, queue){
+		return this.computeInstance[canOffValueSymbol](handler, queue);
 	},
 	getValue = function(){
 		return this.computeInstance.get();
@@ -85,15 +82,12 @@ var COMPUTE = function (getterSetter, context, eventName, bindOnce) {
 
 		return compute.computeInstance.get();
 	}
-	var cid = CID(compute, 'compute');
 
 	// Create an internal `can.Compute`.
 	compute.computeInstance = new Compute(getterSetter, context, eventName, bindOnce);
 
-	compute.handlerKey = '__handler' + cid;
 	compute.on = compute.bind = compute.addEventListener = addEventListener;
 	compute.off = compute.unbind = compute.removeEventListener = removeEventListener;
-
 	compute.isComputed = compute.computeInstance.isComputed;
 
 	compute.clone = function(ctx) {

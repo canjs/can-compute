@@ -1,6 +1,6 @@
 @module {function} can-compute
 @parent can-observables
-@collection can-infrastructure
+@collection can-legacy
 @release 1.1
 @link ../docco/compute/compute.html docco
 @package ../package.json
