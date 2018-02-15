@@ -12,17 +12,17 @@
 Create a compute that derives its value from other observables. Uses [can-observation] to call the `getterSetter` and track observables.
 
 ```js
-var age = compute(32);
+const age = compute( 32 );
 
-var nameAndAge = compute(function(){
+const nameAndAge = compute( function() {
 	return "Matthew - " + age();
-});
+} );
 
-console.log(nameAndAge()); // -> Matthew - 32
+console.log( nameAndAge() ); // -> Matthew - 32
 
-age(33);
+age( 33 );
 
-console.log(nameAndAge()); // -> Matthew - 33
+console.log( nameAndAge() ); // -> Matthew - 33
 ```
 
 @param {function(*+,*+)} getterSetter(newVal,oldVal) A function that gets, and optionally sets, the value of the compute. When called with no arguments, _getterSetter_ should return the current value of the compute. When called with a single argument, _getterSetter_ should arrange things so that the next read of the compute produces that value. This compute will automatically update its value when any observables values are read.
@@ -52,21 +52,21 @@ Configures all behaviors of the [can-compute.computed]. The following cross
 binds an input element to a compute:
 
 ```js
-var input = document.getElementById("age")
-var value = compute("",{
-	get: function(){
+const input = document.getElementById( "age" );
+const value = compute( "", {
+	get: function() {
 		return input.value;
 	},
-	set: function(newVal){
+	set: function( newVal ) {
 		input.value = newVal;
 	},
-	on: function(updated){
-		input.addEventListener("change", updated, false);
+	on: function( updated ) {
+		input.addEventListener( "change", updated, false );
 	},
-	off: function(updated){
-		input.removeEventListener("change", updated, false);
+	off: function( updated ) {
+		input.removeEventListener( "change", updated, false );
 	}
-})
+} );
 ```
 
 @return {can-compute.computed} The new compute.
@@ -77,13 +77,13 @@ var value = compute("",{
 Create a compute that has a setter that can adjust incoming new values.
 
 ```js
-var age = compute(6,function(newVal, oldVal){
-	if(!isNaN(+newVal)){
+const age = compute( 6, function( newVal, oldVal ) {
+	if ( !isNaN( +newVal ) ) {
 		return +newVal;
 	} else {
 		return oldVal;
 	}
-});
+} );
 ```
 
 
@@ -108,11 +108,11 @@ signature lets you create a compute on objects that have events
 that can be listened to with [can-compute.computed.on].
 
 ```js
-var input = document.getElementById('age')
-var age = compute(input,"value","change");
+const input = document.getElementById( "age" );
+const age = compute( input, "value", "change" );
 
-var me = new DefineMap({name: "Justin"});
-var name = compute(me,"name");
+const me = new DefineMap( { name: "Justin" } );
+const name = compute( me, "name" );
 ```
 
 @param {Object} object An object that has an `addEventListener` method and events dispatched on it.
@@ -134,17 +134,17 @@ to on `object` for `propertyName` updates.
 makes an observable `age` compute whose value changes from `33` to `34`:
 
 ```js
-var compute = require("can-compute");
+import compute from "can-compute";
 
-var age = compute(33);
+const age = compute( 33 );
 age(); // 33
 
-age.on("change",function(ev, newVal, oldVal){
-	newVal //-> 34
-	oldVal //-> 33
-})
+age.on( "change", function( ev, newVal, oldVal ) {
+	newVal; //-> 34
+	oldVal; //-> 33
+} );
 
-age(34);
+age( 34 );
 age(); // 33
 ```
 
@@ -157,24 +157,24 @@ is `can-compute`'s best feature.  For example, the following combines the age
 compute in the previous example, and a `name` compute into an `info` compute:
 
 ```js
-var age = compute(33),
-	name = compute("Justin"),
-	info = compute(function(){
-		return name() +" is "+age()+"."
-	});
+const age = compute( 33 ),
+	name = compute( "Justin" ),
+	info = compute( function() {
+		return name() + " is " + age() + ".";
+	} );
 
-info() //-> "Justin is 33."
+info(); //-> "Justin is 33."
 ```
 
 If we listen to [can-compute.computed.ChangeEvent] on `info`, if either `age` or `name`
 changes, `info` will be updated automatically:
 
 ```js
-info.on("change", function(ev, newVal, oldVal){
-	newVal //-> "Justin is 34."
-});
+info.on( "change", function( ev, newVal, oldVal ) {
+	newVal; //-> "Justin is 34."
+} );
 
-age(34)
+age( 34 );
 ```
 
 Computes are similar to event streams like `Bacon.js` or `RXJS`.  However, computes
@@ -188,11 +188,11 @@ updates. For example, if both `age` and `name` were changed at the same time, we
 could prevent `info` from updating twice with:
 
 ```js
-var canBatch = require("can-event/batch/batch");
+import canBatch from "can-event/batch/batch";
 
 canBatch.start();
-age(35)
-name("Justin Meyer")
+age( 35 );
+name( "Justin Meyer" );
 canBatch.stop();
 ```
 
@@ -219,8 +219,8 @@ Any value can be observed.  The following creates a compute
 that holds an object and then changes it to an array.
 
 ```js
-var data = compute({name: "Justin"})
-data([{description: "Learn Computes"}])
+const data = compute( { name: "Justin" } );
+data( [ { description: "Learn Computes" } ] );
 ```
 
 
@@ -235,20 +235,20 @@ The following example shows creating a `fullName` compute
 that derives its value from two properties on the `person` observe:
 
 ```js
-var person = new Person({
-	firstName: 'Alice',
-	lastName: 'Liddell'
-});
+const person = new Person( {
+	firstName: "Alice",
+	lastName: "Liddell"
+} );
 
-var fullName = compute(function() {
-	return person.firstName + ' ' + person.lastName;
-});
+const fullName = compute( function() {
+	return person.firstName + " " + person.lastName;
+} );
 
-fullName.on('change', function(ev, newVal, oldVal) {
-		console.log("This person's full name is now " + newVal + '.');
-});
+fullName.on( "change", function( ev, newVal, oldVal ) {
+	console.log( "This person's full name is now " + newVal + "." );
+} );
 
-person.firstName = 'Allison'; // The log reads:
+person.firstName = "Allison"; // The log reads:
 //-> "This person's full name is now Allison Liddell."
 ```
 
@@ -262,9 +262,9 @@ of a task. It accepts a compute with values between 0 and 100. But,
 our task observe has progress values between 0 and 1 like:
 
 ```js
-var task = new DefineMap({
+const task = new DefineMap( {
 	progress: 0.75
-});
+} );
 ```
 
 Use `compute( getterSetter )` to create a compute that updates itself
@@ -272,17 +272,17 @@ when task's `progress` changes, but can also update progress when
 the compute function is called with a value.  For example:
 
 ```js
-var progressPercent = compute(function(percent){
-	if(arguments.length){
+const progressPercent = compute( function( percent ) {
+	if ( arguments.length ) {
 		task.progress = percent / 100;
 	} else {
 		return task.progress * 100;
 	}
-})
+} );
 
-progressPercent() // -> 75
+progressPercent(); // -> 75
 
-progressPercent(100)
+progressPercent( 100 );
 
 task.progress; // -> 1
 ```
@@ -291,23 +291,23 @@ task.progress; // -> 1
 The following is a similar example that shows converting feet into meters and back:
 
 ```js
-var wall = new DefineMap({
-    material: 'brick',
-    length: 10 // in feet
-});
+const wall = new DefineMap( {
+	material: "brick",
+	length: 10 // in feet
+} );
 
-var wallLengthInMeters = compute(function(lengthInM) {
-	if(arguments.length) {
+const wallLengthInMeters = compute( function( lengthInM ) {
+	if ( arguments.length ) {
 		wall.length = lengthInM / 3.28084;
 	} else {
 		return wall.length * 3.28084;
 	}
-});
+} );
 
 wallLengthInMeters(); // 3.048
 
 // When you set the compute...
-wallLengthInMeters(5);
+wallLengthInMeters( 5 );
 wallLengthInMeters(); // 5
 
 // ...the original map changes too.
@@ -320,13 +320,13 @@ When a compute's value is changed, it emits a [can-compute.computed.ChangeEvent]
 event by using `on` to bind an event handler to the compute:
 
 ```js
-var tally = compute(0);
-tally.on('change', function(ev, newVal, oldVal) {
-    console.log('The tally is now at ' + newVal + '.');
-});
+const tally = compute( 0 );
+tally.on( "change", function( ev, newVal, oldVal ) {
+	console.log( "The tally is now at " + newVal + "." );
+} );
 
-tally(tally() + 5); // The log reads:
-                    // 'The tally is now at 5.'
+tally( tally() + 5 ); // The log reads:
+// 'The tally is now at 5.'
 ```
 
 ## Caching values
@@ -336,37 +336,37 @@ A compute that has an event listener will cache its value and only update when o
 For example:
 
 ```js
-var foo = {
+const foo = {
 	first: "Wonder"
 };
-var last = compute("Woman");
-var hero = {
-	fullName: compute(function() {
-		return foo.first + ' ' + last();
-	})
-}
-hero.fullName.on('change', function() {}); // bind to compute
-console.log(hero.fullName()); // console.logs "Wonder Woman"
+const last = compute( "Woman" );
+const hero = {
+	fullName: compute( function() {
+		return foo.first + " " + last();
+	} )
+};
+hero.fullName.on( "change", function() {} ); // bind to compute
+console.log( hero.fullName() ); // console.logs "Wonder Woman"
 foo.first = "Super";
-console.log(hero.fullName()); // console.logs "Wonder Woman" because the source observable (last) hasn't changed
-last("Man");
-console.log(hero.fullName()); // console.logs "Super Man" because fullName updates its value now after hearing the change on "last"
+console.log( hero.fullName() ); // console.logs "Wonder Woman" because the source observable (last) hasn't changed
+last( "Man" );
+console.log( hero.fullName() ); // console.logs "Super Man" because fullName updates its value now after hearing the change on "last"
 ```
 In contrast, if we didn't bind to the compute:
 
 ```js
-var foo = {
+const foo = {
 	first: "Wonder"
 };
-var last = compute("Woman");
-var hero = {
-	fullName: compute(function() {
-		return foo.first + ' ' + last();
-	})
-}
-console.log(hero.fullName()); // console.logs "Wonder Woman"
+const last = compute( "Woman" );
+const hero = {
+	fullName: compute( function() {
+		return foo.first + " " + last();
+	} )
+};
+console.log( hero.fullName() ); // console.logs "Wonder Woman"
 foo.first = "Super";
-console.log(hero.fullName()); // console.logs "Super Woman" because fullName did not cache its previous value
-last("Man");
-console.log(hero.fullName()); // console.logs "Super Man"
+console.log( hero.fullName() ); // console.logs "Super Woman" because fullName did not cache its previous value
+last( "Man" );
+console.log( hero.fullName() ); // console.logs "Super Man"
 ```

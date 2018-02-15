@@ -6,19 +6,19 @@ Remove an event listener.
 @signature `compute.off(eventType, handler)`
 
 ```js
-var age = compute(33);
+const age = compute( 33 );
 
-var handler = function(ev, newVal, oldVal){
-	ev //-> {type: "change", batchNum: 5}
-	newVal //-> 34
-	oldVal //-> 33
-}
+const handler = function( ev, newVal, oldVal ) {
+	ev; //-> {type: "change", batchNum: 5}
+	newVal; //-> 34
+	oldVal; //-> 33
+};
 
-age.on('change', handler);
+age.on( "change", handler );
 
-age(34);
+age( 34 );
 
-age.off('change', handler)
+age.off( "change", handler );
 ```
 
 @param {String} eventType The name of the event to bind on, usually `change`.

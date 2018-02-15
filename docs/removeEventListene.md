@@ -6,15 +6,15 @@ Listen to when a compute changes value.
 @signature `compute.removeEventListener(eventType, handler)`
 
 ```js
-var age = compute(33);
+const age = compute( 33 );
 
-age.removeEventListener('change', function(ev, newVal, oldVal){
-	ev //-> {type: "change", batchNum: 5}
-	newVal //-> 34
-	oldVal //-> 33
-});
+age.removeEventListener( "change", function( ev, newVal, oldVal ) {
+	ev; //-> {type: "change", batchNum: 5}
+	newVal; //-> 34
+	oldVal; //-> 33
+} );
 
-age(34);
+age( 34 );
 ```
 
 @param {String} eventType The name of the event to bind on, usually `change`.

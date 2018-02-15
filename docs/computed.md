@@ -25,44 +25,44 @@ the current value.
 A compute instance is created with [can-compute] and used as an observable value. Computes are useful to provide a value representative of multiple other observables:
 
 ```js
-var person = new Person({
+const person = new Person( {
 	first: "Matthew",
 	last: "Phillips"
-});
+} );
 
-var fullName = compute(function(){
+const fullName = compute( function() {
 	return person.first + " " + person.last;
-});
+} );
 
-console.log(fullName()); // -> "Matthew Phillips".
+console.log( fullName() ); // -> "Matthew Phillips".
 ```
 
 Calling the compute with a value will cause it to run as a setter function:
 
 ```js
-var count = compute(0);
+const count = compute( 0 );
 
-console.log(count()); // -> 0
+console.log( count() ); // -> 0
 
-count(5);
+count( 5 );
 
-console.log(count()); // -> 5
+console.log( count() ); // -> 5
 ```
 
 This depends on how the [can-compute getterSetter] is defined, and can adjust how it handles setters:
 
 ```js
-var plusOne = compute(function(val){
-	if(val) {
+const plusOne = compute( function( val ) {
+	if ( val ) {
 		return val + 1;
 	} else {
 		return 1;
 	}
-});
+} );
 
-console.log(plusOne()); // -> 1
+console.log( plusOne() ); // -> 1
 
-plusOne(5);
+plusOne( 5 );
 
-console.log(plusOne()); // -> 6
+console.log( plusOne() ); // -> 6
 ```
