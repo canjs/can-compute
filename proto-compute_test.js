@@ -411,7 +411,6 @@ QUnit.test("can-reflect setValue", function(){
 	QUnit.equal(a.get(), "A", "compute");
 });
 
-
 QUnit.test("registered symbols", function() {
 	var a = new Compute("a");
 
@@ -429,4 +428,17 @@ QUnit.test("registered symbols", function() {
 
 	a[canSymbol.for("can.offValue")](handler);
 	a.set("d"); // doesn't trigger handler
+});
+
+QUnit.test("canReflect.onValue should get the previous value", function(assert) {
+	var a = new Compute("a");
+	var done = assert.async();
+
+	canReflect.onValue(a, function(newVal, oldVal) {
+		assert.equal(newVal, "b");
+		assert.equal(oldVal, "a");
+		done();
+	});
+
+	a.set("b");
 });
