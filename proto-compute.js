@@ -484,8 +484,8 @@ canReflect.assignSymbols(Compute.prototype, {
 	"can.getValue": Compute.prototype.get,
 	"can.valueHasDependencies": hasDependencies,
 	"can.onValue": function onValue(handler, queue) {
-		function translationHandler(ev, newValue) {
-			handler(newValue);
+		function translationHandler(ev, newValue, oldValue) {
+			handler(newValue, oldValue);
 		}
 		singleReference.set(handler, this, translationHandler);
 		//!steal-remove-start
