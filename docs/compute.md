@@ -298,9 +298,9 @@ const wall = new DefineMap( {
 
 const wallLengthInMeters = compute( function( lengthInM ) {
 	if ( arguments.length ) {
-		wall.length = lengthInM / 3.28084;
+		wall.length = lengthInM * 3.28084;
 	} else {
-		return wall.length * 3.28084;
+		return wall.length / 3.28084;
 	}
 } );
 
