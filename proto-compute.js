@@ -134,9 +134,11 @@ var setupComputeHandlers = function(compute, func, context) {
 	var observation = new Observation(func, context, compute);
 	var updater = compute.updater.bind(compute);
 	//!steal-remove-start
-	Object.defineProperty(updater,"name",{
-		value: canReflect.getName(compute) + ".updater",
-	});
+	if(process.env.NODE_ENV !== 'production') {
+		Object.defineProperty(updater,"name",{
+			value: canReflect.getName(compute) + ".updater",
+		});
+	}
 	//!steal-remove-end
 	compute.observation = observation;
 	return {
@@ -489,9 +491,11 @@ canReflect.assignSymbols(Compute.prototype, {
 		}
 		singleReference.set(handler, this, translationHandler);
 		//!steal-remove-start
-		Object.defineProperty(translationHandler, "name", {
-			value: canReflect.getName(handler) + "::onValue"
-		});
+		if(process.env.NODE_ENV !== 'production') {
+			Object.defineProperty(translationHandler, "name", {
+				value: canReflect.getName(handler) + "::onValue"
+			});
+		}
 		//!steal-remove-end
 		this.addEventListener("change", translationHandler, queue);
 	},
