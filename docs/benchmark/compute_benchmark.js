@@ -1,3 +1,4 @@
+"use strict";
 steal('can/compute',
 	'can/compute/proto_compute.js',
 	'steal-benchmark',
