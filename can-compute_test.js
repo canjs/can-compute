@@ -3,7 +3,6 @@ var compute = require('can-compute');
 var QUnit = require('steal-qunit');
 var ObservationRecorder = require("can-observation-recorder");
 var domEvents = require("can-dom-events");
-//var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 var eventQueue = require("can-event-queue/map/map");
