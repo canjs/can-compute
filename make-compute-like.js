@@ -1,4 +1,4 @@
-var singleReference = require("can-util/js/single-reference/single-reference");
+var singleReference = require("can-single-reference");
 var canReflect = require('can-reflect');
 
 var Compute = function(newVal){
