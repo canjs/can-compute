@@ -584,7 +584,8 @@ test("Listening to input change", function(){
 	});
 
 	input.value = 'foo';
-	domDispatch.call(input, "input");
+	var event = new Event("input");
+	input.dispatchEvent(event);
 });
 
 test("Setting an input to change", function(){
