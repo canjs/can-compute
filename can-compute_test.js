@@ -6,9 +6,10 @@ var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 var eventQueue = require("can-event-queue/map/map");
 var queues = require("can-queues");
-require("can-dom-events");
+var domEvents = require("can-dom-events");
 
 var metaSymbol = canSymbol.for("can.meta");
+var domDispatch = domEvents.dispatch;
 
 QUnit.module('can/compute');
 test('single value compute', function () {
@@ -583,8 +584,7 @@ test("Listening to input change", function(){
 	});
 
 	input.value = 'foo';
-	var event = new Event("input");
-	input.dispatchEvent(event);
+	domDispatch(input, "input");
 });
 
 test("Setting an input to change", function(){
