@@ -37,11 +37,11 @@ var Observation = require('can-observation');
 var ObservationRecorder = require("can-observation-recorder");
 var eventQueue = require("can-event-queue/map/map");
 var observeReader = require("can-stache-key");
-var getObject = require('can-util/js/get/get');
+var getObject = require('can-key/get/get');
 
 var assign = require("can-assign");
 var canReflect = require("can-reflect");
-var singleReference = require("can-util/js/single-reference/single-reference");
+var singleReference = require("can-single-reference");
 
 // ## can.Compute
 // Checks the arguments and calls different setup methods.

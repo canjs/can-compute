@@ -2,13 +2,14 @@ require("./proto-compute_test");
 var compute = require('can-compute');
 var QUnit = require('steal-qunit');
 var ObservationRecorder = require("can-observation-recorder");
-var domDispatch = require("can-util/dom/dispatch/dispatch");
 var canSymbol = require("can-symbol");
 var canReflect = require("can-reflect");
 var eventQueue = require("can-event-queue/map/map");
 var queues = require("can-queues");
+var domEvents = require("can-dom-events");
 
 var metaSymbol = canSymbol.for("can.meta");
+var domDispatch = domEvents.dispatch;
 
 QUnit.module('can/compute');
 test('single value compute', function () {
@@ -583,7 +584,7 @@ test("Listening to input change", function(){
 	});
 
 	input.value = 'foo';
-	domDispatch.call(input, "input");
+	domDispatch(input, "input");
 });
 
 test("Setting an input to change", function(){

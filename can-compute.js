@@ -16,7 +16,7 @@
 
 var Compute = require('./proto-compute');
 var namespace = require('can-namespace');
-var singleReference = require("can-util/js/single-reference/single-reference");
+var singleReference = require("can-single-reference");
 
 var canReflect = require('can-reflect/reflections/get-set/get-set');
 var canSymbol = require('can-symbol');
