@@ -146,7 +146,11 @@ var setupComputeHandlers = function(compute, func, context) {
 		// Call `onchanged` when any source observables change.
 		_on: function() {
 			canReflect.onValue( observation, updater,"notify");
-			compute.value = observation.value;
+			if (observation.hasOwnProperty("_value")) {// can-observation 4.1+
+				compute.value = observation._value;
+			} else {// can-observation < 4.1
+				compute.value = observation.value;
+			}
 		},
 		// Unbind `onchanged` from all source observables.
 		_off: function() {
@@ -297,7 +301,7 @@ assign(Compute.prototype, {
 				});
 
 			// Because `setupComputeHandlers` calls `updater` internally with its
-			// observation.value as `oldValue` and that might not be up to date,
+			// observation._value as `oldValue` and that might not be up to date,
 			// we overwrite updater to always use self.value.
 			this.updater = function(newVal) {
 				oldUpdater.call(self, newVal, self.value);
@@ -422,10 +426,15 @@ assign(Compute.prototype, {
 	// Updates the cached value and fires an event if the value has changed.
 	updater: function(newVal, oldVal, batchNum) {
 		this.value = newVal;
-		if(this.observation) {
+		var observation = this.observation;
+		if (observation) {
 			// it's possible the observation doesn't actually
 			// have any dependencies
-			this.observation.value = newVal;
+			if (observation.hasOwnProperty("_value")) {// can-observation 4.1+
+				observation._value = newVal;
+			} else {// can-observation < 4.1
+				observation.value = newVal;
+			}
 		}
 		updateOnChange(this, newVal, oldVal, batchNum);
 	},
