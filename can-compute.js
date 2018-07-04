@@ -1,3 +1,4 @@
+"use strict";
 /* jshint maxdepth:7*/
 
 // # can.compute

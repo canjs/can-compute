@@ -1,3 +1,4 @@
+"use strict";
 // # can/compute/proto_compute (aka can.Compute)
 //
 // Allows the creation of observablue values. This
