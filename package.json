@@ -46,7 +46,7 @@
     "can-dom-events": "^1.0.0",
     "detect-cyclic-packages": "^1.1.0",
     "jshint": "^2.9.1",
-    "steal": "^1.2.8",
+    "steal": "^2.1.5",
     "steal-qunit": "^1.0.1",
     "steal-tools": "^1.1.2",
     "testee": "^0.8.0"
