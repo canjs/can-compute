@@ -5,15 +5,15 @@ var canAsync = require("can-event/async/async");
 //require('./read_test');
 
 QUnit.module('can-compute async',{
-	setup: function(){
+	beforeEach: function(assert) {
 		canAsync.async();
 	},
-	teardown: function(){
+	afterEach: function(assert) {
 		canAsync.sync();
 	}
 });
 
-QUnit.asyncTest('async basics', 2, function () {
+QUnit.test('async basics', 2, function(assert) {
 	var canAsync = require("can-event/async/async");
 	canAsync.async();
 
@@ -25,16 +25,16 @@ QUnit.asyncTest('async basics', 2, function () {
 	});
 
 	fullName.on("change", function(ev, newVal, oldVal){
-		QUnit.equal( newVal,  "Payal Shah", "newVal");
-		QUnit.equal( oldVal, "Justin Meyer", "oldVal");
-		QUnit.start();
+		assert.equal( newVal,  "Payal Shah", "newVal");
+		assert.equal( oldVal, "Justin Meyer", "oldVal");
+		done();
 	});
 
 	first("Payal");
 	last("Shah");
 });
 
-QUnit.asyncTest('async can immediately read', 4, function () {
+QUnit.test('async can immediately read', 4, function(assert) {
 	var canAsync = require("can-event/async/async");
 	canAsync.async();
 
@@ -48,20 +48,20 @@ QUnit.asyncTest('async can immediately read', 4, function () {
 	});
 	var firedEvents = false;
 	fullName.on("change", function(ev, newVal, oldVal){
-		QUnit.equal( newVal,  "Payal Shah", "change newVal");
-		QUnit.equal( oldVal, "Justin Meyer", "change oldVal");
+		assert.equal( newVal,  "Payal Shah", "change newVal");
+		assert.equal( oldVal, "Justin Meyer", "change oldVal");
 		firedEvents = true;
-		QUnit.start();
+		done();
 	});
 
 	first("Payal");
 	last("Shah");
 
-	QUnit.equal( fullName(),  "Payal Shah");
-	QUnit.ok(firedEvents, "fired events");
+	assert.equal( fullName(),  "Payal Shah");
+	assert.ok(firedEvents, "fired events");
 });
 
-test("setting compute.async with a observable dependency gets a new value and can re-compute", 4, function(){
+QUnit.test("setting compute.async with a observable dependency gets a new value and can re-compute", 4, function(assert) {
 	// this is needed for define with a set and get.
 	var c = compute(1);
 	var add;
@@ -72,24 +72,24 @@ test("setting compute.async with a observable dependency gets a new value and ca
 	});
 
 
-	equal( async(), 2, "can read unbound");
+	assert.equal( async(), 2, "can read unbound");
 
 	async.bind("change", function(ev, newVal, oldVal){
-		equal(newVal, 3, "change new val");
-		equal(oldVal, 2, "change old val");
+		assert.equal(newVal, 3, "change new val");
+		assert.equal(oldVal, 2, "change old val");
 	});
 
 
 	async(2);
 
-	equal( async(), 3, "can read unbound");
+	assert.equal( async(), 3, "can read unbound");
 });
 
-test('compute.async getter has correct when length === 1', function(){
+QUnit.test('compute.async getter has correct when length === 1', function(assert) {
 	var m = {};
 
 	var getterCompute = compute.async(false, function (singleArg) {
-		equal(this, m, 'getter has the right context');
+		assert.equal(this, m, 'getter has the right context');
 	}, m);
 
 	getterCompute.bind('change', function(){});

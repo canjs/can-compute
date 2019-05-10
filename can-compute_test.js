@@ -12,15 +12,15 @@ var metaSymbol = canSymbol.for("can.meta");
 var domDispatch = domEvents.dispatch;
 
 QUnit.module('can/compute');
-test('single value compute', function () {
+QUnit.test('single value compute', function(assert) {
 	var num = compute(1);
 	num.on('change', function (ev, newVal, oldVal) {
-		equal(newVal, 2, 'newVal');
-		equal(oldVal, 1, 'oldVal');
+		assert.equal(newVal, 2, 'newVal');
+		assert.equal(oldVal, 1, 'oldVal');
 	});
 	num(2);
 });
-test('inner computes values are not bound to', function () {
+QUnit.test('inner computes values are not bound to', function(assert) {
 	var num = compute(1);
 	var outer = compute(function() {
 		var inner = compute(function() {
@@ -32,16 +32,16 @@ test('inner computes values are not bound to', function () {
 	var handler = function () {};
 	outer.on('change', handler);
 	// We do a timeout because we temporarily bind on num so that we can use its cached value.
-	stop();
+	var done = assert.async();
 	setTimeout(function () {
 
-		equal(num.computeInstance[metaSymbol].handlers.get([]).length, 1, 'inner compute only bound once');
-		equal(outer.computeInstance[metaSymbol].handlers.get([]).length, 1, 'outer compute only bound once');
-		start();
+		assert.equal(num.computeInstance[metaSymbol].handlers.get([]).length, 1, 'inner compute only bound once');
+		assert.equal(outer.computeInstance[metaSymbol].handlers.get([]).length, 1, 'outer compute only bound once');
+		done();
 	}, 50);
 });
 
-test('compute.truthy', function () {
+QUnit.test('compute.truthy', function(assert) {
 	var result = 0;
 	var numValue;
 	var num = compute(numValue = 3);
@@ -55,32 +55,32 @@ test('compute.truthy', function () {
 	});
 	tester.addEventListener('change', function (ev, newVal, oldVal) {
 		if (num() === 0) {
-			equal(newVal, 2, '2 is the new val');
+			assert.equal(newVal, 2, '2 is the new val');
 		} else if (num() === -1) {
-			equal(newVal, 3, '3 is the new val');
+			assert.equal(newVal, 3, '3 is the new val');
 		} else {
-			ok(false, 'change should not be called');
+			assert.ok(false, 'change should not be called');
 		}
 	});
-	equal(tester(), 1, 'on bind, we call tester once');
+	assert.equal(tester(), 1, 'on bind, we call tester once');
 	num(numValue = 2);
 	num(numValue = 1);
 	num(numValue = 0);
 	num(numValue = -1);
 });
-test('a binding compute does not double read', function () {
+QUnit.test('a binding compute does not double read', function(assert) {
 	var sourceAge = 30,
 		timesComputeIsCalled = 0;
 	var age = compute(function (newVal) {
 		timesComputeIsCalled++;
 		if (timesComputeIsCalled === 1) {
-			ok(true, 'reading age to get value');
+			assert.ok(true, 'reading age to get value');
 		} else if (timesComputeIsCalled === 2) {
-			equal(newVal, 31, 'the second time should be an update');
+			assert.equal(newVal, 31, 'the second time should be an update');
 		} else if (timesComputeIsCalled === 3) {
-			ok(true, 'called after set to get the value');
+			assert.ok(true, 'called after set to get the value');
 		} else {
-			ok(false, 'You\'ve called the callback ' + timesComputeIsCalled + ' times');
+			assert.ok(false, 'You\'ve called the callback ' + timesComputeIsCalled + ' times');
 		}
 		if (arguments.length) {
 			sourceAge = newVal;
@@ -93,11 +93,11 @@ test('a binding compute does not double read', function () {
 	});
 	var k = function () {};
 	info.bind('change', k);
-	equal(info(), 'I am 30');
+	assert.equal(info(), 'I am 30');
 	age(31);
-	equal(info(), 'I am 31');
+	assert.equal(info(), 'I am 31');
 });
-test('cloning a setter compute (#547)', function () {
+QUnit.test('cloning a setter compute (#547)', function(assert) {
 	var name = compute('', function (newVal) {
 		return this.txt + newVal;
 	});
@@ -105,11 +105,11 @@ test('cloning a setter compute (#547)', function () {
 		txt: '.'
 	});
 	cloned('-');
-	equal(cloned(), '.-');
+	assert.equal(cloned(), '.-');
 });
 
-test('compute updated method uses get and old value (#732)', function () {
-	expect(9);
+QUnit.test('compute updated method uses get and old value (#732)', function(assert) {
+	assert.expect(9);
 	var input = {
 		value: 1
 	};
@@ -127,30 +127,30 @@ test('compute updated method uses get and old value (#732)', function () {
 			delete input.onchange;
 		}
 	});
-	equal(value(), 1, 'original value');
-	ok(!input.onchange, 'nothing bound');
+	assert.equal(value(), 1, 'original value');
+	assert.ok(!input.onchange, 'nothing bound');
 	value(2);
-	equal(value(), 2, 'updated value');
-	equal(input.value, 2, 'updated input.value');
+	assert.equal(value(), 2, 'updated value');
+	assert.equal(input.value, 2, 'updated input.value');
 
 
 	function handler(ev, newVal, oldVal) {
-		equal(newVal, 3, 'newVal');
-		equal(oldVal, 2, 'oldVal');
+		assert.equal(newVal, 3, 'newVal');
+		assert.equal(oldVal, 2, 'oldVal');
 		value.unbind('change',handler);
 	}
 	value.bind('change', handler);
-	ok(input.onchange, 'binding to onchange');
+	assert.ok(input.onchange, 'binding to onchange');
 
 
 	input.value = 3;
 	input.onchange({});
 
-	ok(!input.onchange, 'removed binding');
-	equal(value(), 3);
+	assert.ok(!input.onchange, 'removed binding');
+	assert.equal(value(), 3);
 });
 
-test("a compute updated by source changes within a batch is part of that batch", function(){
+QUnit.test("a compute updated by source changes within a batch is part of that batch", function(assert) {
 
 	var computeA = compute("a");
 	var computeB = compute("b");
@@ -174,9 +174,9 @@ test("a compute updated by source changes within a batch is part of that batch",
 	var callbacks = 0;
 	combo.bind("change", function(){
 		if(callbacks === 0){
-			ok(true, "called change once");
+			assert.ok(true, "called change once");
 		} else {
-			ok(false, "called change multiple times");
+			assert.ok(false, "called change multiple times");
 		}
 		callbacks++;
 	});
@@ -187,17 +187,17 @@ test("a compute updated by source changes within a batch is part of that batch",
 	queues.batch.stop();
 });
 
-test("compute.async can be like a normal getter", function(){
+QUnit.test("compute.async can be like a normal getter", function(assert) {
 	var first = compute("Justin"),
 		last = compute("Meyer"),
 		fullName = compute.async("", function(){
 			return first()+" "+last();
 		});
 
-	equal(fullName(), "Justin Meyer");
+	assert.equal(fullName(), "Justin Meyer");
 });
 
-test("compute.async operate on single value", function(){
+QUnit.test("compute.async operate on single value", function(assert) {
 
 	var a = compute(1);
 	var b = compute(2);
@@ -218,19 +218,19 @@ test("compute.async operate on single value", function(){
 
 	obj.bind("change", function(){});
 
-	deepEqual( obj(), {a: 1, b: 2}, "object has all properties" );
+	assert.deepEqual( obj(), {a: 1, b: 2}, "object has all properties" );
 
 	a(0);
 
-	deepEqual( obj(), {b: 2}, "removed a" );
+	assert.deepEqual( obj(), {b: 2}, "removed a" );
 
 	b(0);
 
-	deepEqual( obj(), {}, "removed b" );
+	assert.deepEqual( obj(), {}, "removed b" );
 
 });
 
-test("compute.async async changing value", function(){
+QUnit.test("compute.async async changing value", function(assert) {
 
 	var a = compute(1);
 	var b = compute(2);
@@ -253,17 +253,17 @@ test("compute.async async changing value", function(){
 	var changeArgs = [
 		{newVal: "a", oldVal: undefined, run: function(){ a(0); } },
 		{newVal: "b", oldVal: "a", run: function(){ b(0); }},
-		{newVal: null, oldVal: "b", run: function(){ start(); }}
+		{newVal: null, oldVal: "b", run: function(){ done(); }}
 	],
 		changeNum = 0;
 
-	stop();
+	var done = assert.async();
 
 
 	async.bind("change", function(ev, newVal, oldVal){
 		var data = changeArgs[changeNum++];
-		equal( newVal, data.newVal, "newVal is correct" );
-		equal( oldVal, data.oldVal, "oldVal is correct" );
+		assert.equal( newVal, data.newVal, "newVal is correct" );
+		assert.equal( oldVal, data.oldVal, "oldVal is correct" );
 
 		setTimeout(data.run, 10);
 
@@ -273,7 +273,7 @@ test("compute.async async changing value", function(){
 
 });
 
-test("compute.async read without binding", function(){
+QUnit.test("compute.async read without binding", function(assert) {
 
 	var source = compute(1);
 
@@ -282,13 +282,13 @@ test("compute.async read without binding", function(){
 		return curVal;
 	});
 
-	ok(async(), "calling async worked");
+	assert.ok(async(), "calling async worked");
 
 
 
 });
 
-test("bug with nested computes and batch ordering (#1519)", function(){
+QUnit.test("bug with nested computes and batch ordering (#1519)", function(assert) {
 
 	var root = compute('a');
 
@@ -307,7 +307,7 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 		return valA || valB;
 	});
 
-	equal(combined(), true);
+	assert.equal(combined(), true);
 
 	combined.bind('change', function(){ });
 
@@ -317,28 +317,28 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 	root('b');
 	queues.batch.stop();
 
-	equal(combined(), true);
+	assert.equal(combined(), true);
 	//equal(other(), 2);
 });
 
-test('compute change handler context is set to the function not compute', function() {
+QUnit.test('compute change handler context is set to the function not compute', function(assert) {
 	var comp = compute(null);
 
 	comp.bind('change', function() {
-		equal(typeof this, 'function');
+		assert.equal(typeof this, 'function');
 	});
 
 	comp('test');
 });
 
-test('Calling .unbind() on un-bound compute does not throw an error', function () {
+QUnit.test('Calling .unbind() on un-bound compute does not throw an error', function(assert) {
 	var count =  compute(0);
 	count.unbind('change');
-	ok(true, 'No error was thrown');
+	assert.ok(true, 'No error was thrown');
 });
 
 
-test("dependent computes update in the right order (2093)", function() {
+QUnit.test("dependent computes update in the right order (2093)", function(assert) {
 
 	var root = compute('a'),
 		childB = compute(function() {
@@ -349,12 +349,12 @@ test("dependent computes update in the right order (2093)", function() {
 		});
 
 	combine.bind("change", function(ev, newVal) {
-		equal(newVal, "bb", "concat changed");
+		assert.equal(newVal, "bb", "concat changed");
 	});
 	root('b');
 });
 
-test("dependent computes update in the right order with a batch (#2093)", function() {
+QUnit.test("dependent computes update in the right order with a batch (#2093)", function(assert) {
 
 	// so the problem is that `child` then `combine` happens.
 	// without a batch, child change fires before `combine`, firing `grandChild`, which
@@ -382,7 +382,7 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 		"combine", combine.computeInstance._cid);*/
 
 	combine.bind("change", function(ev, newVal) {
-		equal(newVal, "bb", "concat changed");
+		assert.equal(newVal, "bb", "concat changed");
 	});
 
 	/*root.bind("change", function(ev, newVal){
@@ -400,7 +400,7 @@ test("dependent computes update in the right order with a batch (#2093)", functi
 	queues.batch.stop();
 });
 
-test("bug with nested computes and batch ordering (#1519)", function(){
+QUnit.test("bug with nested computes and batch ordering (#1519)", function(assert) {
 
 	var root = compute('a');
 
@@ -419,7 +419,7 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 		return valA || valB;
 	});
 
-	equal(combined(), true);
+	assert.equal(combined(), true);
 
 	combined.bind('change', function(){ });
 
@@ -429,11 +429,11 @@ test("bug with nested computes and batch ordering (#1519)", function(){
 	root('b');
 	queues.batch.stop();
 
-	equal(combined(), true);
+	assert.equal(combined(), true);
 	//equal(other(), 2);
 });
 
-test("binding, unbinding, and rebinding works after a timeout (#2095)", function(){
+QUnit.test("binding, unbinding, and rebinding works after a timeout (#2095)", function(assert) {
 	var root = compute(1),
 		derived = compute(function(){
 			return root();
@@ -443,22 +443,22 @@ test("binding, unbinding, and rebinding works after a timeout (#2095)", function
 	derived.bind("change", change);
 	derived.unbind("change", change);
 
-	stop();
+	var done = assert.async();
 	setTimeout(function(){
 		derived.bind("change", function(ev, newVal, oldVal){
-			equal(newVal, 2, "updated");
-			start();
+			assert.equal(newVal, 2, "updated");
+			done();
 		});
 		root(2);
 	},10);
 
 });
 
-test("ObservationRecorder.isRecording observes doesn't understand ObservationRecorder.ignore (#2099)", function(){
-	expect(0);
+QUnit.test("ObservationRecorder.isRecording observes doesn't understand ObservationRecorder.ignore (#2099)", function(assert) {
+	assert.expect(0);
 	var c = compute(1);
 	c.computeInstance.bind = function() {
-		ok(false);
+		assert.ok(false);
 	};
 
 	var outer = compute(function(){
@@ -470,7 +470,7 @@ test("ObservationRecorder.isRecording observes doesn't understand ObservationRec
 	outer.bind("change", function(){});
 });
 
-test("handles missing update order items (#2121)",function(){
+QUnit.test("handles missing update order items (#2121)",function(assert) {
 	var root1 = compute("root1"),
 		child1 = compute(function(){
 			return root1();
@@ -487,7 +487,7 @@ test("handles missing update order items (#2121)",function(){
 		});
 
 	res.bind("change", function(ev, newVal){
-		equal(newVal, "ROOT1root2");
+		assert.equal(newVal, "ROOT1root2");
 	});
 
 	queues.batch.start();
@@ -496,18 +496,18 @@ test("handles missing update order items (#2121)",function(){
 
 });
 
-test("compute should not fire event when NaN is set multiple times #2128", function() {
+QUnit.test("compute should not fire event when NaN is set multiple times #2128", function(assert) {
 	var c = compute(NaN);
 
 	compute.bind("change", function() {
-		ok(false, "change event should not be fired");
+		assert.ok(false, "change event should not be fired");
 	});
 
-	ok(isNaN(c()));
+	assert.ok(isNaN(c()));
 	c(NaN);
 });
 
-test("eventQueue.afterPreviousEvents firing too late (#2198)", function(){
+QUnit.test("eventQueue.afterPreviousEvents firing too late (#2198)", function(assert) {
 
 
 	var compute1 = compute("a"),
@@ -521,7 +521,7 @@ test("eventQueue.afterPreviousEvents firing too late (#2198)", function(){
 		var afterPrevious = false;
 
 		compute2.bind("change", function() {
-			ok(afterPrevious, "after previous should have fired so we would respond to this event");
+			assert.ok(afterPrevious, "after previous should have fired so we would respond to this event");
 		});
 
 		queues.batch.start();
@@ -540,10 +540,10 @@ test("eventQueue.afterPreviousEvents firing too late (#2198)", function(){
 	queues.batch.stop();
 });
 
-test("Async getter causes infinite loop (#28)", function(){
+QUnit.test("Async getter causes infinite loop (#28)", function(assert) {
 	var changeCount = 0;
 	var idCompute = compute(1);
-	stop();
+	var done = assert.async();
 
 	var comp = compute.async(undefined, function(last, resolve) {
 		var id = idCompute();
@@ -566,8 +566,8 @@ test("Async getter causes infinite loop (#28)", function(){
 
 	var checkChangeCount = function(){
 		if(changeCount === 4) {
-			equal(changeCount, 4);
-			start();
+			assert.equal(changeCount, 4);
+			done();
 		} else {
 			setTimeout(checkChangeCount, 10);
 		}
@@ -575,62 +575,62 @@ test("Async getter causes infinite loop (#28)", function(){
 	checkChangeCount();
 });
 
-test("Listening to input change", function(){
+QUnit.test("Listening to input change", function(assert) {
 	var input = document.createElement("input");
 	var comp = compute(input, "value", "input");
 
 	comp.on("change", function(){
-		ok(true, "it changed");
+		assert.ok(true, "it changed");
 	});
 
 	input.value = 'foo';
 	domDispatch(input, "input");
 });
 
-test("Setting an input to change", function(){
+QUnit.test("Setting an input to change", function(assert) {
 	var input = document.createElement("input");
 	var comp = compute(input, "value", "input");
 
 	comp("foo");
-	ok(input.value === "foo");
+	assert.ok(input.value === "foo");
 });
 
-test("compute.truthy with functions (canjs/can-stache#172)", function () {
+QUnit.test("compute.truthy with functions (canjs/can-stache#172)", function(assert) {
 	var func = compute(function() {
 		return function() {
-			ok(false, "should not be run");
+			assert.ok(false, "should not be run");
 		};
 	});
 
 	var truthy = compute.truthy(func);
 
-	equal(truthy(), true);
+	assert.equal(truthy(), true);
 });
 
-test("works with can-reflect", 5, function(){
+QUnit.test("works with can-reflect", 5, function(assert) {
 	var c = compute(0);
 
-	QUnit.equal( canReflect.getValue(c), 0, "unbound value");
+	assert.equal( canReflect.getValue(c), 0, "unbound value");
 
 	var handler = function(newValue){
-		QUnit.equal(newValue, 1, "observed new value");
+		assert.equal(newValue, 1, "observed new value");
 
 		canReflect.offValue(c, handler);
 
 	};
-	QUnit.ok(canReflect.isValueLike(c), "isValueLike is true");
+	assert.ok(canReflect.isValueLike(c), "isValueLike is true");
 
 	canReflect.onValue(c, handler);
-	QUnit.equal( canReflect.valueHasDependencies(c), undefined, "valueHasDependencies");
+	assert.equal( canReflect.valueHasDependencies(c), undefined, "valueHasDependencies");
 
 	c(1);
 
-	QUnit.equal( canReflect.getValue(c), 1, "bound value");
+	assert.equal( canReflect.getValue(c), 1, "bound value");
 	c(2);
 
 });
 
-QUnit.test("can-reflect valueHasDependencies", function(){
+QUnit.test("can-reflect valueHasDependencies", function(assert) {
 	var a = compute("a");
 	var b = compute("b");
 
@@ -640,21 +640,21 @@ QUnit.test("can-reflect valueHasDependencies", function(){
 
 	c.on("change", function(){});
 
-	QUnit.ok( canReflect.valueHasDependencies(c), "valueHasDependencies");
+	assert.ok( canReflect.valueHasDependencies(c), "valueHasDependencies");
 
 
 });
 
-QUnit.test("registered symbols", function() {
+QUnit.test("registered symbols", function(assert) {
 	var a = compute("a");
 
-	ok(a[canSymbol.for("can.isValueLike")], "can.isValueLike");
-	equal(a[canSymbol.for("can.getValue")](), "a", "can.getValue");
+	assert.ok(a[canSymbol.for("can.isValueLike")], "can.isValueLike");
+	assert.equal(a[canSymbol.for("can.getValue")](), "a", "can.getValue");
 	a[canSymbol.for("can.setValue")]("b");
-	equal(a(), "b", "can.setValue");
+	assert.equal(a(), "b", "can.setValue");
 
 	function handler(val) {
-		equal(val, "c", "can.onValue");
+		assert.equal(val, "c", "can.onValue");
 	}
 
 	a[canSymbol.for("can.onValue")](handler);
@@ -664,27 +664,27 @@ QUnit.test("registered symbols", function() {
 	a("d"); // doesn't trigger handler
 });
 
-QUnit.test("can-reflect setValue", function(){
+QUnit.test("can-reflect setValue", function(assert) {
 	var a = compute("a");
 
 	canReflect.setValue(a, "A");
-	QUnit.equal(a(), "A", "compute");
+	assert.equal(a(), "A", "compute");
 });
 
-QUnit.test("Calling .unbind() with no arguments should tear down all event handlers", function () {
+QUnit.test("Calling .unbind() with no arguments should tear down all event handlers", function(assert) {
 	var count = compute(0);
 	count.on('change', function() {
 		console.log('Count changed');
 	});
 	var handlers = count.computeInstance[canSymbol.for("can.meta")].handlers;
 
-	QUnit.equal(handlers.get(["change"]).length, 1, "Change event added");
+	assert.equal(handlers.get(["change"]).length, 1, "Change event added");
 
 	count.unbind();
-	QUnit.equal(handlers.get(["change"]).length, 0, "All events for compute removed");
+	assert.equal(handlers.get(["change"]).length, 0, "All events for compute removed");
 });
 
-QUnit.test(".off() unbinds a given handler", function () {
+QUnit.test(".off() unbinds a given handler", function(assert) {
 	var handler = function(){};
 	var c = compute('foo');
 
@@ -692,9 +692,9 @@ QUnit.test(".off() unbinds a given handler", function () {
 
 	var handlers = c.computeInstance[canSymbol.for("can.meta")].handlers;
 
-	QUnit.equal(handlers.get(['change']).length, 1, 'handler added');
+	assert.equal(handlers.get(['change']).length, 1, 'handler added');
 
 	c.off('change', handler);
 
-	QUnit.equal(handlers.get(['change']).length, 0, 'hander removed');
+	assert.equal(handlers.get(['change']).length, 0, 'hander removed');
 });
