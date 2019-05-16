@@ -231,12 +231,13 @@ QUnit.test("compute.async operate on single value", function(assert) {
 });
 
 QUnit.test("compute.async async changing value", function(assert) {
-
+	
 	var a = compute(1);
 	var b = compute(2);
-
+	var done;
+	
 	var async = compute.async(undefined,function( curVal, setVal ){
-
+		
 		if(a()) {
 			setTimeout(function(){
 				setVal("a");
@@ -249,15 +250,15 @@ QUnit.test("compute.async async changing value", function(assert) {
 			return null;
 		}
 	});
-
+	
 	var changeArgs = [
 		{newVal: "a", oldVal: undefined, run: function(){ a(0); } },
 		{newVal: "b", oldVal: "a", run: function(){ b(0); }},
 		{newVal: null, oldVal: "b", run: function(){ done(); }}
 	],
-		changeNum = 0;
-
-	var done = assert.async();
+	changeNum = 0;
+	
+	done = assert.async();
 
 
 	async.bind("change", function(ev, newVal, oldVal){
@@ -266,7 +267,6 @@ QUnit.test("compute.async async changing value", function(assert) {
 		assert.equal( oldVal, data.oldVal, "oldVal is correct" );
 
 		setTimeout(data.run, 10);
-
 	});
 
 
@@ -607,7 +607,8 @@ QUnit.test("compute.truthy with functions (canjs/can-stache#172)", function(asse
 	assert.equal(truthy(), true);
 });
 
-QUnit.test("works with can-reflect", 5, function(assert) {
+QUnit.test("works with can-reflect", function(assert) {
+	assert.expect(5);
 	var c = compute(0);
 
 	assert.equal( canReflect.getValue(c), 0, "unbound value");

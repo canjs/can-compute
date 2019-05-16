@@ -13,7 +13,9 @@ QUnit.module('can-compute async',{
 	}
 });
 
-QUnit.test('async basics', 2, function(assert) {
+QUnit.test('async basics', function(assert) {
+	assert.expect(2);
+	var done = assert.async();
 	var canAsync = require("can-event/async/async");
 	canAsync.async();
 
@@ -34,7 +36,9 @@ QUnit.test('async basics', 2, function(assert) {
 	last("Shah");
 });
 
-QUnit.test('async can immediately read', 4, function(assert) {
+QUnit.test('async can immediately read', function(assert) {
+	assert.expect(4);
+	var done = assert.async();
 	var canAsync = require("can-event/async/async");
 	canAsync.async();
 
@@ -61,7 +65,8 @@ QUnit.test('async can immediately read', 4, function(assert) {
 	assert.ok(firedEvents, "fired events");
 });
 
-QUnit.test("setting compute.async with a observable dependency gets a new value and can re-compute", 4, function(assert) {
+QUnit.test("setting compute.async with a observable dependency gets a new value and can re-compute", function(assert) {
+	assert.expect(4);
 	// this is needed for define with a set and get.
 	var c = compute(1);
 	var add;

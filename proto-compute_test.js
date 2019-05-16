@@ -243,6 +243,8 @@ QUnit.test('Compute.async async changing value', function(assert) {
 			return null;
 		}
 	});
+	
+	var done = assert.async();
 
 	var changeArgs = [
 		{newVal: 'a', oldVal: undefined, run: function() { a.set(0); } },
@@ -251,7 +253,6 @@ QUnit.test('Compute.async async changing value', function(assert) {
 	],
 	changeNum = 0;
 
-	var done = assert.async();
 
 	async.bind('change', function(ev, newVal, oldVal) {
 		var data = changeArgs[changeNum++];
@@ -383,7 +384,8 @@ if (Compute.prototype.trace) {
 	});
 }
 
-QUnit.test("works with can-reflect", 5, function(assert) {
+QUnit.test("works with can-reflect", function(assert) {
+	assert.expect(5);
 	var c = new Compute(0);
 
 	assert.equal( canReflect.getValue(c), 0, "unbound value");
