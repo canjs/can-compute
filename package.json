@@ -38,7 +38,7 @@
     "can-reflect": "^1.6.1",
     "can-simple-observable": "^2.0.0",
     "can-single-reference": "^1.0.0",
-    "can-stache-key": "^1.0.0",
+    "can-stache-key": "^1.4.3",
     "can-symbol": "^1.0.0"
   },
   "devDependencies": {
